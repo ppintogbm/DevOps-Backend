@@ -1,6 +1,13 @@
-FROM ibmcom/ace
+FROM 	ibmcom/ace
 
-COPY compiled.bar bars/
+#Move bar file compiled via Jenkinsfile
+COPY 	compiled.bar bars/
 
-RUN  ls -la bars/ && \
-     ace_compile_bars.sh
+#Change permissions from copied bar
+USER	root
+RUN	chown -R aceuser:mqbrkrs bars/
+
+#Deploy compiled bar 
+USER	aceuser
+RUN  	ls -la bars/ && \
+    	 ace_compile_bars.sh
