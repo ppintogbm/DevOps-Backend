@@ -29,8 +29,8 @@ pipeline{
 		stage('Docker build'){
 			steps{
 				container('docker'){
-					sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry
 					sh "docker build -t ${registry}/${project}/api-calculadora:${imagetag} ."
+					sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
 					sh "docker push ${registry}/${project}/api-calculadora:${imagetag}"
 					/*script{
 						docker.withRegistry(registry){
