@@ -29,12 +29,14 @@ pipeline{
 		stage('Docker build'){
 			steps{
 				container('docker'){
-					sh('docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry)
-					script{
+					sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry
+					sh "docker build -t ${project}/api-calculadora:${imagetag} ."
+					sh "docker push ${project}/api-calculadora:${imagetag}"
+					/*script{
 						docker.withRegistry(registry){
 							docker.build("${project}/api-calculadora:${imagetag}").push()
 						}
-					}
+					}*/
 				}
 			}
 		}
