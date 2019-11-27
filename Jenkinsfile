@@ -10,6 +10,7 @@ pipeline{
 		stage('Extract'){
 			steps{
 			//		git branch: 'Dev', url: 'https://github.com/lgaritav/DevOps-Backend.git'
+					sh "ls -a"
 			}
 		}
 		stage('Build Bars'){
