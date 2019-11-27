@@ -14,7 +14,7 @@ pipeline{
 					/*openshift.withCluster(){
 						registry = "http://" + openshift.raw("registry info").actions[0].out
 					}*/
-					registry = 172.30.1.1:5000
+					registry = "172.30.1.1:5000"
 					project = env.PROJECT_NAME
 				}
 			}
