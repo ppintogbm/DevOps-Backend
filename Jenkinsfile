@@ -9,7 +9,7 @@ pipeline{
 	stages{
 		stage('Extract'){
 			steps{
-				git branch: 'Dev', url: 'https://github.com/lgaritav/DevOps-Backend.git'
+			//		git branch: 'Dev', url: 'https://github.com/lgaritav/DevOps-Backend.git'
 			}
 		}
 		stage('Build Bars'){
