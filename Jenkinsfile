@@ -7,10 +7,15 @@ pipeline{
 		}
     	}
 	stages{
-		stage('Extract'){
+		stage('Prepare'){
 			steps{
-			//		git branch: 'Dev', url: 'https://github.com/lgaritav/DevOps-Backend.git'
-					sh "ls -a"
+				script{
+					imagetag = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+					openshift.withCluster(){
+						registry = "http://" + openshift.raw("registry info").actions[0].out
+					}
+					project = env.PROJECT_NAME
+				}
 			}
 		}
 		stage('Build Bars'){
@@ -23,7 +28,12 @@ pipeline{
 		stage('Docker build'){
 			steps{
 				container('docker'){
-					sh "docker build ."
+					sh "docker login -u jenkins -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ${registry}/${project}" 
+					script{
+						docker.withRegistry(registry){
+							docker.build("${project}/api-calculadora:${imagetag}").push()
+						}
+					}
 				}
 			}
 		}
