@@ -29,10 +29,10 @@ pipeline{
 		stage('Docker build'){
 			steps{
 				container('docker'){
-					sh "docker build -t ${registry}/${project}/${image}:${imagetag} ."
+					sh "docker build -t ${registry}/${project}/${image}:${tag} ."
 					sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
-					sh "docker push ${registry}/${project}/${image}:${imagetag}"
-					sh "docker tag ${registry}/${project}/${image}:${imagetag} ${registry}/${project}/${image}:latest"
+					sh "docker push ${registry}/${project}/${image}:${tag}"
+					sh "docker tag ${registry}/${project}/${image}:${tag} ${registry}/${project}/${image}:latest"
 					sh "docker push ${registry}/${project}/${image}:latest"
 				}
 			}
