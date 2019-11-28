@@ -5,17 +5,17 @@ pipeline{
             		label "test-ace"
             		yamlFile "BuildPod.yaml"
 		}
-    	}
+    }
+	parameters{
+		string(defaultValue: "jenkins", description: "Project/Namespace name", name: "project")
+		string(defaultValue: "172.30.1.1:5000", description: "Registry",  name:"registry")
+		string(defaultValue: "api-calculadora", description: "Image Name", name: "image")
+	}
 	stages{
 		stage('Prepare'){
 			steps{
 				script{
-					imagetag = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-					/*openshift.withCluster(){
-						registry = "http://" + openshift.raw("registry info").actions[0].out
-					}*/
-					registry = "172.30.1.1:5000"
-					project = "jenkins"
+					tag = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
 				}
 			}
 		}
@@ -29,14 +29,11 @@ pipeline{
 		stage('Docker build'){
 			steps{
 				container('docker'){
-					sh "docker build -t ${registry}/${project}/api-calculadora:${imagetag} ."
+					sh "docker build -t ${registry}/${project}/${image}:${imagetag} ."
 					sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
-					sh "docker push ${registry}/${project}/api-calculadora:${imagetag}"
-					/*script{
-						docker.withRegistry(registry){
-							docker.build("${project}/api-calculadora:${imagetag}").push()
-						}
-					}*/
+					sh "docker push ${registry}/${project}/${image}:${imagetag}"
+					sh "docker tag ${registry}/${project}/${image}:${imagetag} ${registry}/${project}/${image}:latest"
+					sh "docker push ${registry}/${project}/${image}:latest"
 				}
 			}
 		}
