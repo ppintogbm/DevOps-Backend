@@ -52,11 +52,11 @@ objects:
           livenessProbe: 
             exec:
               command: 
-              - checkacehealthy
+              - chkacehealthy
           readinessProbe: 
             exec:
               command: 
-              - checkaceready
+              - chkaceready
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: false
