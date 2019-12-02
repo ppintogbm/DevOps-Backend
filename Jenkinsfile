@@ -47,7 +47,7 @@ pipeline{
               						openshift.create(model)
               						deployment = openshift.selector('dc',[template: 'ace', app: image])
               					}
-								openshift.tag("${image}:${version}","${image}:latest")
+								openshift.tag("${image}:${tag}","${image}:latest")
               					//deployment.rollout().latest()
               					def latestVersion = deployment.object().status.latestVersion
 								def rc = openshift.selector('rc',"${image}-${latestVersion}")
