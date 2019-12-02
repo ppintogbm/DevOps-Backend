@@ -47,10 +47,10 @@ pipeline{
               						openshift.create(model)
               						deployment = openshift.selector('dc',[template: 'ace', app: appName])
               					}
-								openshift.tag("${appName}:${version}","${appName}:latest")
+								openshift.tag("${image}:${version}","${image}:latest")
               					//deployment.rollout().latest()
               					def latestVersion = deployment.object().status.latestVersion
-								def rc = openshift.selector('rc',"${appName}-${latestVersion}")
+								def rc = openshift.selector('rc',"${image}-${latestVersion}")
 								timeout(time:1, unit: 'MINUTES'){
 									rc.untilEach(1){
 										def rcMap = it.object()
