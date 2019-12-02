@@ -27,15 +27,16 @@ oc create -f https://github.com/IBM/cloud-pak/raw/master/spec/security/scc/ibm-a
 ```
 6. Brindamos el contexto de seguridad `ibm-anyuid-scc` a la cuenta de servicio `default` (predeterminada) del proyecto
 ```bash
-oc adm policy add-scc-to-user privileged -z jenkins
+oc adm policy add-scc-to-user ibm-anyuid-scc -z default
 ```
-7. Configuramos el pipeline de despliegue del presente repositorio:
+7. Configuramos el pipeline de despliegue del presente repositorio, tomando en cuenta las siguientes variables en el siguiente ejemplo de YAML:
     1. `pipeline-name`: Nombre del recurso BuildConfig a ser creado.
     2. `git-url`: Dirección del git. 
     3. `openshift-current-project`: Nombre del proyecto donde se está desplegando el pipeline.
     4. `registry`: Dirección interna del registro de openshift (predeterminado: 172.30.1.1:5000).
     5. `image-stream-name`: Nombre de la imágen a construir (predeterminado: api-calculadora).
 
+`pipeline-name.yaml`
 ```yaml
 apiVersion: build.openshift.io/v1
 kind: BuildConfig

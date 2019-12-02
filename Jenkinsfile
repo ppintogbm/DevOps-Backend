@@ -32,8 +32,34 @@ pipeline{
 					sh "docker build -t ${registry}/${project}/${image}:${tag} ."
 					sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
 					sh "docker push ${registry}/${project}/${image}:${tag}"
-					sh "docker tag ${registry}/${project}/${image}:${tag} ${registry}/${project}/${image}:latest"
-					sh "docker push ${registry}/${project}/${image}:latest"
+				}
+			}
+		}
+		stage('Deploy/Update'){
+			steps{
+				container('origin'){
+					script{
+						openshift.withCluster(){
+							openshift.withProject(){
+								def deployment = openshift.selector('dc',[template: 'ace', app: appName])
+								if(!deployment.exists()){             
+              						def model = openshift.process("-f", "oc/template.yaml", "-p", "APPLICATION_NAME=${image}", "-p", "IMAGE=${image}:latest")
+              						openshift.create(model)
+              						deployment = openshift.selector('dc',[template: 'ace', app: appName])
+              					}
+								openshift.tag("${appName}:${version}","${appName}:latest")
+              					//deployment.rollout().latest()
+              					def latestVersion = deployment.object().status.latestVersion
+								def rc = openshift.selector('rc',"${appName}-${latestVersion}")
+								timeout(time:1, unit: 'MINUTES'){
+									rc.untilEach(1){
+										def rcMap = it.object()
+										return (rcMap.status.replicas.equals(rcMap.status.readyReplicas))
+                					}
+              					}
+							}
+						}
+					}
 				}
 			}
 		}
