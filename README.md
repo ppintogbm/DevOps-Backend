@@ -62,10 +62,10 @@ spec:
     type: JenkinsPipeline
 ```
 8. Inicializamos el pipeline creado
-```bash
+```console
 oc start-build [pipeline-name]
 ```
-9. Una vez concluido el mismo, confirmamos la existencia del image-stream `[image-stream-name]`
-```bash
-oc get is [image-stream-name]
+9. Concluido el despliegue, deberíamos observar el mismo en la consola de openshift o incluso por medio del siguiente comando: 
+```console
+oc get dc -l app=[image-stream-name]
 ```
