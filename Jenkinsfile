@@ -41,11 +41,11 @@ pipeline{
 					script{
 						openshift.withCluster(){
 							openshift.withProject(){
-								def deployment = openshift.selector('dc',[template: 'ace', app: appName])
+								def deployment = openshift.selector('dc',[template: 'ace', app: image])
 								if(!deployment.exists()){             
               						def model = openshift.process("-f", "oc/template.yaml", "-p", "APPLICATION_NAME=${image}", "-p", "IMAGE=${image}:latest")
               						openshift.create(model)
-              						deployment = openshift.selector('dc',[template: 'ace', app: appName])
+              						deployment = openshift.selector('dc',[template: 'ace', app: image])
               					}
 								openshift.tag("${image}:${version}","${image}:latest")
               					//deployment.rollout().latest()
