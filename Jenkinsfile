@@ -43,7 +43,7 @@ pipeline{
 							openshift.withProject(){
 								def deployment = openshift.selector('dc',[template: 'ace', app: image])
 								if(!deployment.exists()){             
-              						def model = openshift.process("-f", "oc/template.yaml", "-p", "APPLICATION_NAME=${image}", "-p", "IMAGE=${image}:latest")
+              						def model = openshift.process("-f", "oc/template.yaml", "-p", "APPLICATION_NAME=${image}", "-p", "IMAGE_NAME=${image}:latest")
               						openshift.create(model)
               						deployment = openshift.selector('dc',[template: 'ace', app: image])
               					}
