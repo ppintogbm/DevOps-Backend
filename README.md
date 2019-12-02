@@ -29,7 +29,13 @@ oc create -f https://github.com/IBM/cloud-pak/raw/master/spec/security/scc/ibm-a
 ```bash
 oc adm policy add-scc-to-user privileged -z jenkins
 ```
-7. Configuramos el pipeline de despliegue del presente repositorio
+7. Configuramos el pipeline de despliegue del presente repositorio:
+    1. `pipeline-name`: Nombre del recurso BuildConfig a ser creado.
+    2. `git-url`: Dirección del git. 
+    3. `openshift-current-project`: Nombre del proyecto donde se está desplegando el pipeline.
+    4. `registry`: Dirección interna del registro de openshift (predeterminado: 172.30.1.1:5000).
+    5. `image-stream-name`: Nombre de la imágen a construir (predeterminado: api-calculadora).
+
 ```yaml
 apiVersion: build.openshift.io/v1
 kind: BuildConfig
@@ -38,24 +44,27 @@ metadata:
 spec:
   runPolicy: Serial
   source:
-    git:
-      ref: [branch]
-      uri: '[git_dir]'
     type: Git
+    git:
+      uri: [git-url]
+      ref: [branch-name]
   strategy:
     jenkinsPipelineStrategy:
       jenkinsfilePath: Jenkinsfile
-    env:
-    - name: project
-      value: [openshift_current_project]
-    - name: registry
-      value: [registry_url]
+      env:
+      - name: project
+        value: [openshift-current-project]
+      - name: registry
+        value: [registry-url]
+      - name: image
+        value: [image-stream-name]
     type: JenkinsPipeline
 ```
 8. Inicializamos el pipeline creado
 ```bash
-oc start-build test-ace-git
+oc start-build [pipeline-name]
 ```
-9. Una vez concluido el mismo, confirmamos la existencia del image-stream `api-calculadora`
+9. Una vez concluido el mismo, confirmamos la existencia del image-stream `[image-stream-name]`
 ```bash
-oc get is api-calculadora
+oc get is [image-stream-name]
+```
