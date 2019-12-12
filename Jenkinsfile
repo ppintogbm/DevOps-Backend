@@ -10,6 +10,7 @@ pipeline{
 		string(defaultValue: "jenkins", description: "Project/Namespace name", name: "project")
 		string(defaultValue: "172.30.1.1:5000", description: "Registry",  name:"registry")
 		string(defaultValue: "api-calculadora", description: "Image Name", name: "image")
+		string(defaultValue: "db-calculadora", description: "Database Image Name", name: "dbimage")
 	}
 	stages{
 		stage('Prepare'){
@@ -35,6 +36,16 @@ pipeline{
 				}
 			}
 		}
+		stage('Docker build database'){
+			steps{
+				container('docker'){
+					sh "cd database; docker build -t ${registry}/${project}/${dbimage}:${tag} "
+					sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
+					sh "docker push ${registry}/${project}/${dbimage}:${tag}"
+				}
+			}
+		}
+		/*
 		stage('Deploy/Update'){
 			steps{
 				container('origin'){
@@ -62,6 +73,6 @@ pipeline{
 					}
 				}
 			}
-		}
+		}*/
 	}
 }

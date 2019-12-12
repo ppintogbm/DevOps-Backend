@@ -22,6 +22,14 @@ parameters:
   - name: DB2_PVC_SIZE
     description: Database Persistent Volume Claim Size
     required: true
+  - name: IMAGE
+    description: DB2 Image name
+    required: true
+    value: db2:latest
+  - name: IMAGE_NAMESPACE
+    description: DB2 Image name
+    required: true
+    value: openshift
 objects:
   - kind: Secret
     apiVersion: v1
@@ -131,6 +139,6 @@ objects:
               - db2
             from:
               kind: ImageStreamTag
-              name: 'db2:latest'
-              namespace: openshift
+              name: ${IMAGE}
+              namespace: ${IMAGE_NAMESPACE}
         - type: ConfigChange
