@@ -77,7 +77,7 @@ pipeline{
 								openshift.withProject(){
 									def deployment = openshift.selector('dc',[template: 'db2', app: dbimage])
 									if(!deployment.exists()){             
-										def model = openshift.process("-f", "oc/db-template.yaml", "-p", "APPLICATION_NAME=${dbimage}", "-p", "IMAGE_NAME=${dbimage}:latest", "-p", "IMAGE_NAMESPACE=${project}", "-p", "DB2_PVC_SIZE=5Gi", "-p", "DB2_DBNAME=TEST")
+										def model = openshift.process("-f", "oc/db-template.yaml", "-p", "APPLICATION_NAME=${dbimage}", "-p", "IMAGE_NAME=${dbimage}:latest", "-p", "IMAGE_NAMESPACE=${project}", "-p", "DB2_PVC_SIZE=5", "-p", "DB2_DBNAME=TEST")
 										openshift.apply(model)
 										deployment = openshift.selector('dc',[template: 'ace', app: image])
 									}
