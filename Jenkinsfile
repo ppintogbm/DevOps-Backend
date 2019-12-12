@@ -48,24 +48,26 @@ pipeline{
 		stage('Deploy/Update Database'){
 			steps{
 				container('origin'){
-					openshift.withCluster(){
-							openshift.withProject(){
-								def deployment = openshift.selector('dc',[template: 'db2', app: dbimage])
-								if(!deployment.exists()){             
-              		def model = openshift.process("-f", "oc/db-template.yaml", "-p", "APPLICATION_NAME=${dbimage}", "-p", "IMAGE_NAME=${dbimage}:latest")
-              		openshift.apply(model)
-              		deployment = openshift.selector('dc',[template: 'ace', app: image])
-              	}
-								openshift.tag("${dbimage}:${tag}","${dbimage}:latest")
-              	def latestVersion = deployment.object().status.latestVersion
-								def rc = openshift.selector('rc',"${dbimage}-${latestVersion}")
-								timeout(time:1, unit: 'MINUTES'){
-									rc.untilEach(1){
-										def rcMap = it.object()
-										return (rcMap.status.replicas.equals(rcMap.status.readyReplicas))
-                	}
-              	}
-							}
+					script{
+						openshift.withCluster(){
+								openshift.withProject(){
+									def deployment = openshift.selector('dc',[template: 'db2', app: dbimage])
+									if(!deployment.exists()){             
+										def model = openshift.process("-f", "oc/db-template.yaml", "-p", "APPLICATION_NAME=${dbimage}", "-p", "IMAGE_NAME=${dbimage}:latest")
+										openshift.apply(model)
+										deployment = openshift.selector('dc',[template: 'ace', app: image])
+									}
+									openshift.tag("${dbimage}:${tag}","${dbimage}:latest")
+									def latestVersion = deployment.object().status.latestVersion
+									def rc = openshift.selector('rc',"${dbimage}-${latestVersion}")
+									timeout(time:1, unit: 'MINUTES'){
+										rc.untilEach(1){
+											def rcMap = it.object()
+											return (rcMap.status.replicas.equals(rcMap.status.readyReplicas))
+										}
+									}
+								}
+						}
 					}
 				}
 			}
