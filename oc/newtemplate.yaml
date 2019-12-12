@@ -157,7 +157,7 @@ objects:
   - kind: Secret 
     apiVersion: v1
     metadata:
-      name: ${APPLICATION_NAME}-app-setdbparams
+      name: ${APPLICATION_NAME}-app-setdbparms
     spec: 
       stringData:
         setdbparms.txt: |-
@@ -211,9 +211,9 @@ objects:
             - name: policies
               configMap:
                 name: ${APPLICATION_NAME}-app-policies
-            - name: setdbparams
+            - name: setdbparms
               secret:
-                name: ${APPLICATION_NAME}-app-setdbparams
+                name: ${APPLICATION_NAME}-app-setdbparms
           containers:
             - name: ace
               env: 
@@ -222,7 +222,7 @@ objects:
               volumeMounts:
                 - name: policies
                   mountPath: /home/aceuser/initial-config/policy
-                - name: setdbparams
+                - name: setdbparms
                   mountPath: /home/aceuser/initial-config/setdbparms
               image: " "
               imagePullPolicy: "Always"
