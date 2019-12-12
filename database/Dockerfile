@@ -1,6 +1,6 @@
 FROM ibmcom/db2:latest
 
-RUN mkidr /var/custom
+RUN mkdir /var/custom
 
 COPY create.sh /var/custom/
 
