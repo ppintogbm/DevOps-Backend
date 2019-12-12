@@ -69,14 +69,19 @@ objects:
       ports:
         - port: 22
           protocol: TCP
+          name: 22-tcp
         - port: 50000
           protocol: TCP
+          name: 50000-tcp
         - port: 55000
           protocol: TCP
+          name: 55000-tcp
         - port: 60006
           protocol: TCP
+          name: 60006-tcp
         - port: 60007
           protocol: TCP
+          name: 60007-tcp
   - kind: DeploymentConfig
     apiVersion: v1
     metadata:
