@@ -1,4 +1,5 @@
 #/bin/bash
+su - db2inst1
 clear
 echo "Creando la base de datos y la tabla..."
 db2 create db test
