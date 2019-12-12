@@ -1,0 +1,136 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: db2-template
+  description: Template for deploy db2 database
+  tags: ibmcom/db2
+labels:
+  template: db2
+  version: "1.0"
+  app: "${APPLICATION_NAME}"
+parameters:
+  - name: APPLICATION_NAME
+    description: Resources default naming prefix
+    required: true
+  - name: DB2INST1_PASSWORD
+    description: Database DB2INST1 user password
+    generate: expression
+    from: "[a-zA-Z0-9]{12}"
+  - name: DB2_DBNAME
+    description: Database name
+    required: true
+  - name: DB2_PVC_SIZE
+    description: Database Persistent Volume Claim Size
+    required: true
+objects:
+  - kind: Secret
+    apiVersion: v1
+    metadata:
+      name: ${APPLICATION_NAME}-secret
+      annotations: 
+        template.openshift.io/base64-expose-password: "{.data['password']}"
+    stringData:
+      password: ${DB2INST1_PASSWORD}
+  - kind: ConfigMap
+    apiVersion: v1
+    metadata: 
+      name: ${APPLICATION_NAME}-config
+      annotations:
+        template.openshift.io/expose-username: "{.data['username']}"
+    data:
+      username: DB2INST1
+      dbname: ${DB2_DBNAME}                
+  - kind: PersistentVolumeClaim
+    apiVersion: v1
+    metadata:
+      name: ${APPLICATION_NAME}-pvc
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: ${DB2_PVC_SIZE}Gi
+  - kind: Service
+    apiVersion: v1
+    metadata:
+      name: ${APPLICATION_NAME}
+    spec:
+      selector:
+        app: "${APPLICATION_NAME}"
+      type: ClusterIP
+      ports:
+        - port: 22
+          protocol: TCP
+        - port: 50000
+          protocol: TCP
+        - port: 55000
+          protocol: TCP
+        - port: 60006
+          protocol: TCP
+        - port: 60007
+          protocol: TCP
+  - kind: DeploymentConfig
+    apiVersion: v1
+    metadata:
+      name: ${APPLICATION_NAME}
+    spec:
+      replicas: 1
+      selector:
+        app: "${APPLICATION_NAME}"
+      template:
+        metadata:
+          labels:
+            app: "${APPLICATION_NAME}"
+        spec:
+          volumes:
+            - name: db2-1
+              persistentVolumeClaim: 
+                claimName: ${APPLICATION_NAME}-pvc
+            - name: db2-2
+              emptyDir: {}
+          containers:
+          - name: db2
+            securityContext:
+              privileged: true
+            env:
+              - name: LICENSE
+                value: accept
+              - name: DB2_DBNAME
+                valueFrom:
+                  configMapKeyRef:
+                    name: ${APPLICATION_NAME}-config
+                    key: dbname
+              - name: DB2INST1_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: ${APPLICATION_NAME}-secret
+                    key: password
+            image: " "
+            imagePullPolicy: "Always"
+            ports:
+              - containerPort: 22
+                protocol: TCP
+              - containerPort: 50000
+                protocol: TCP
+              - containerPort: 55000
+                protocol: TCP
+              - containerPort: 60006
+                protocol: TCP
+              - containerPort: 60007
+                protocol: TCP
+            volumeMounts:
+              - mountPath: /database
+                name: db2-1
+              - mountPath: /hadr
+                name: db2-2
+      triggers:
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - db2
+            from:
+              kind: ImageStreamTag
+              name: 'db2:latest'
+              namespace: openshift
+        - type: ConfigChange

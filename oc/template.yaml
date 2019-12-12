@@ -92,7 +92,11 @@ objects:
   apiVersion: v1
   metadata:
     name: ${APPLICATION_NAME}
-  spec: 
+  spec:
+    selector: 
+      template: ace
+      version: "1.0"
+      app: "${APPLICATION_NAME}"
     type: ClusterIP
     ports:
     - name: 7600-tcp
