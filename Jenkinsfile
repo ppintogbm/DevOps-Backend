@@ -31,7 +31,7 @@ pipeline{
 				stage('Build ACE'){
 					steps{
 						container('docker'){
-							sh "docker build -t ${registry}/${project}/${app}-api:${tag} ."
+							sh "docker build -t ${registry}/${project}/${app}-ace:${tag} ."
 							sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
 							sh "docker push ${registry}/${project}/${app}-api:${tag}"
 						}
@@ -56,7 +56,7 @@ pipeline{
 								openshift.withProject(){
 									def deployment = openshift.selector('dc',[template: 'api-calculadora', app: app])
 									if(!deployment.exists()){             
-										def model = openshift.process("-f", "oc/newtemplate.yaml", "-p", "APPLICATION_NAME=${app}", "-p", "ACE_IMAGE_NAME=${app}-app:latest", "DB_IMAGE_NAME=${app}-db:latest", "-p", "IMAGE_NAMESPACE=${project}", "-p", "DB_PVC_SIZE=5", "-p", "DB_NAME=TEST")
+										def model = openshift.process("-f", "oc/newtemplate.yaml", "-p", "APPLICATION_NAME=${app}", "-p", "ACE_IMAGE_NAME=${app}-ace:latest", "DB_IMAGE_NAME=${app}-db:latest", "-p", "IMAGE_NAMESPACE=${project}", "-p", "DB_PVC_SIZE=5", "-p", "DB_NAME=TEST")
 										openshift.apply(model)
 										deployment = openshift.selector('dc',[template: 'api-calculadora', app: app])
 									}
