@@ -10,3 +10,4 @@ su - db2inst1 -c 'db2 connect to test; db2 "CREATE TABLE OPER01
  Primary Key (HORA_TRANS))"'
 echo "Verificando la informacion creada..."
 su - db2inst1 -c 'db2 connect to test; db2 list tables; db2 describe table db2inst1.oper01; db2 disconnect test'
+echo "Fin"

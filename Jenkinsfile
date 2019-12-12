@@ -9,8 +9,7 @@ pipeline{
 	parameters{
 		string(defaultValue: "jenkins", description: "Project/Namespace name", name: "project")
 		string(defaultValue: "172.30.1.1:5000", description: "Registry",  name:"registry")
-		string(defaultValue: "api-calculadora", description: "Image Name", name: "image")
-		string(defaultValue: "db-calculadora", description: "Database Image Name", name: "dbimage")
+		string(defaultValue: "api-calculadora", description: "App Name", name: "app")
 	}
 	stages{
 		stage('Prepare'){
@@ -32,98 +31,52 @@ pipeline{
 				stage('Build ACE'){
 					steps{
 						container('docker'){
-							sh "docker build -t ${registry}/${project}/${image}:${tag} ."
+							sh "docker build -t ${registry}/${project}/${app}-api:${tag} ."
 							sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
-							sh "docker push ${registry}/${project}/${image}:${tag}"
+							sh "docker push ${registry}/${project}/${app}-api:${tag}"
 						}
 					}
 				}
 				stage('Build DB'){
 					steps{
 						container('docker'){
-							sh "docker build -t ${registry}/${project}/${dbimage}:${tag} database"
+							sh "docker build -t ${registry}/${project}/${app}-db:${tag} database"
 							sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
-							sh "docker push ${registry}/${project}/${dbimage}:${tag}"
+							sh "docker push ${registry}/${project}/${app}-db:${tag}"
 						}	
 					}
 				}
 			}
 		}
-		/*
-		stage('Docker build'){
-			steps{
-				container('docker'){
-					sh "docker build -t ${registry}/${project}/${image}:${tag} ."
-					sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
-					sh "docker push ${registry}/${project}/${image}:${tag}"
-				}
-			}
-		}
-		stage('Docker build'){
-			steps{
-				container('docker'){
-					sh "docker build -t ${registry}/${project}/${dbimage}:${tag} database"
-					sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
-					sh "docker push ${registry}/${project}/${dbimage}:${tag}"
-				}
-			}
-		}
-		*/
-		stage('Deploy/Update Database'){
+		stage('Deploy/Update'){
 			steps{
 				container('origin'){
 					script{
 						openshift.withCluster(){
 								openshift.withProject(){
-									def deployment = openshift.selector('dc',[template: 'db2', app: dbimage])
+									def deployment = openshift.selector('dc',[template: 'api-calculadora', app: app])
 									if(!deployment.exists()){             
-										def model = openshift.process("-f", "oc/db-template.yaml", "-p", "APPLICATION_NAME=${dbimage}", "-p", "IMAGE_NAME=${dbimage}:latest", "-p", "IMAGE_NAMESPACE=${project}", "-p", "DB2_PVC_SIZE=5", "-p", "DB2_DBNAME=TEST")
+										def model = openshift.process("-f", "oc/newtemplate.yaml", "-p", "APPLICATION_NAME=${app}", "-p", "ACE_IMAGE_NAME=${app}-app:latest", "DB_IMAGE_NAME=${app}-db:latest", "-p", "app_NAMESPACE=${project}", "-p", "DB_PVC_SIZE=5", "-p", "DB_DBNAME=TEST")
 										openshift.apply(model)
-										deployment = openshift.selector('dc',[template: 'ace', app: dbimage])
+										deployment = openshift.selector('dc',[template: 'api-calculadora', app: app])
 									}
-									openshift.tag("${dbimage}:${tag}","${dbimage}:latest")
+									openshift.tag("${app}-app:${tag}","${app}-app:latest")
+									openshift.tag("${app}-db:${tag}","${app}-db:latest")
+									/*
 									def latestVersion = deployment.object().status.latestVersion
-									def rc = openshift.selector('rc',"${dbimage}-${latestVersion}")
+									def rc = openshift.selector('rc',"${app}-${latestVersion}")
 									timeout(time:1, unit: 'MINUTES'){
 										rc.untilEach(1){
 											def rcMap = it.object()
 											return (rcMap.status.replicas.equals(rcMap.status.readyReplicas))
 										}
 									}
+									*/
 								}
 						}
 					}
 				}
 			}
 		}
-		/*
-		stage('Deploy/Update AppConnect'){
-			steps{
-				container('origin'){
-					script{
-						openshift.withCluster(){
-							openshift.withProject(){
-								def deployment = openshift.selector('dc',[template: 'ace', app: image])
-								if(!deployment.exists()){             
-              						def model = openshift.process("-f", "oc/template.yaml", "-p", "APPLICATION_NAME=${image}", "-p", "IMAGE_NAME=${image}:latest")
-              						openshift.apply(model)
-              						deployment = openshift.selector('dc',[template: 'ace', app: image])
-              					}
-								openshift.tag("${image}:${tag}","${image}:latest")
-              					//deployment.rollout().latest()
-              					def latestVersion = deployment.object().status.latestVersion
-								def rc = openshift.selector('rc',"${image}-${latestVersion}")
-								timeout(time:1, unit: 'MINUTES'){
-									rc.untilEach(1){
-										def rcMap = it.object()
-										return (rcMap.status.replicas.equals(rcMap.status.readyReplicas))
-                					}
-              					}
-							}
-						}
-					}
-				}
-			}
-		}*/
 	}
 }
