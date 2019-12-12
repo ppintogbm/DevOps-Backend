@@ -22,7 +22,7 @@ parameters:
   - name: DB2_PVC_SIZE
     description: Database Persistent Volume Claim Size
     required: true
-  - name: IMAGE
+  - name: IMAGE_NAME
     description: DB2 Image name
     required: true
     value: db2:latest
