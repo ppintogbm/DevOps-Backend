@@ -26,7 +26,30 @@ pipeline{
 					sh "bash -c 'mqsipackagebar -a compiled.bar -w . -k ApiCalculadora'"
 				}
 			}
-   		}
+   	}
+		stage('Docker build'){
+			parallel{
+				stage('Build ACE'){
+					steps{
+						container('docker'){
+							sh "docker build -t ${registry}/${project}/${image}:${tag} ."
+							sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
+							sh "docker push ${registry}/${project}/${image}:${tag}"
+						}
+					}
+				}
+				stage('Build DB'){
+					steps{
+						container('docker'){
+							sh "docker build -t ${registry}/${project}/${dbimage}:${tag} database"
+							sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
+							sh "docker push ${registry}/${project}/${dbimage}:${tag}"
+						}	
+					}
+				}
+			}
+		}
+		/*
 		stage('Docker build'){
 			steps{
 				container('docker'){
@@ -36,7 +59,7 @@ pipeline{
 				}
 			}
 		}
-		stage('Docker build database'){
+		stage('Docker build'){
 			steps{
 				container('docker'){
 					sh "docker build -t ${registry}/${project}/${dbimage}:${tag} database"
@@ -45,6 +68,7 @@ pipeline{
 				}
 			}
 		}
+		*/
 		stage('Deploy/Update Database'){
 			steps{
 				container('origin'){
@@ -53,7 +77,7 @@ pipeline{
 								openshift.withProject(){
 									def deployment = openshift.selector('dc',[template: 'db2', app: dbimage])
 									if(!deployment.exists()){             
-										def model = openshift.process("-f", "oc/db-template.yaml", "-p", "APPLICATION_NAME=${dbimage}", "-p", "IMAGE_NAME=${dbimage}:latest", "-p", "IMAGE_NAMESPACE=${project}")
+										def model = openshift.process("-f", "oc/db-template.yaml", "-p", "APPLICATION_NAME=${dbimage}", "-p", "IMAGE_NAME=${dbimage}:latest", "-p", "IMAGE_NAMESPACE=${project}", "-p", "DB2_PVC_SIZE=5Gi")
 										openshift.apply(model)
 										deployment = openshift.selector('dc',[template: 'ace', app: image])
 									}
