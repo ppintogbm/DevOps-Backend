@@ -60,7 +60,7 @@ pipeline{
 										openshift.apply(model)
 										deployment = openshift.selector('dc',[template: 'api-calculadora', app: app])
 									}
-									openshift.tag("${app}-app:${tag}","${app}-app:latest")
+									openshift.tag("${app}-ace:${tag}","${app}-ace:latest")
 									openshift.tag("${app}-db:${tag}","${app}-db:latest")
 									/*
 									def latestVersion = deployment.object().status.latestVersion
