@@ -22,7 +22,7 @@ pipeline{
 		stage('Build Bars'){
 			steps{
 				container('ace'){
-					sh "bash -c 'mqsipackagebar -a compiled.bar -w . -k ApiCalculadora -o ApiCalculadoraJava/ApiCalculadoraJava.jar'"
+					sh "bash -c 'mqsipackagebar -a compiled.bar -w . -k ApiCalculadora"
 				}
 			}
    	}
