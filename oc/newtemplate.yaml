@@ -102,6 +102,7 @@ objects:
         metadata:
           labels:
             app: ${APPLICATION_NAME}-db
+        spec:
           volumes:
             - name: db2-1
               persistentVolumeClaim: 
@@ -158,15 +159,14 @@ objects:
     apiVersion: v1
     metadata:
       name: ${APPLICATION_NAME}-app-setdbparms
-    spec: 
-      stringData:
-        setdbparms.txt: |-
-          dbidentity ${DB_USER} ${DB_PASSWORD}
+    stringData:
+      setdbparms.txt: |-
+        dbidentity ${DB_USER} ${DB_PASSWORD}
   - kind: ConfigMap
     apiVersion: v1
     metadata:
       name: ${APPLICATION_NAME}-app-policies
-    spec:
+    data:
       DB2Policy.policyxml: |-
         <?xml version="1.0" encoding="UTF-8"?>
         <policies>
@@ -213,7 +213,7 @@ objects:
                 name: ${APPLICATION_NAME}-app-policies
             - name: setdbparms
               secret:
-                name: ${APPLICATION_NAME}-app-setdbparms
+                secretName: ${APPLICATION_NAME}-app-setdbparms
           containers:
             - name: ace
               env: 
@@ -265,16 +265,16 @@ objects:
                   - SYS_CHROOT
                   - SETFCAP
       triggers: 
-      - type: ImageChange
-        imageChangeParams:
-          containerNames:
-          - ace
-          automatic: true
-          from: 
-            kind: ImageStreamTag
-            name: ${ACE_IMAGE_NAME}
-            namespace: ${IMAGE_NAMESPACE}
-      - type: ConfigChange
+        - type: ImageChange
+          imageChangeParams:
+            containerNames:
+            - ace
+            automatic: true
+            from: 
+              kind: ImageStreamTag
+              name: ${ACE_IMAGE_NAME}
+              namespace: ${IMAGE_NAMESPACE}
+        - type: ConfigChange
   - kind: Service
     apiVersion: v1
     metadata:

@@ -15,7 +15,57 @@ parameters:
 - description: Image Name
   required: true
   name: IMAGE_NAME
+- description: DB Password
+  name: DB_PASSWORD
+  required: true
+- description: DB user
+  name: DB_USER
+  required: true
+- description: DB password
+  name: DB_PASSWORD
+  required: true
+
 objects:
+- kind: Secret 
+  apiVersion: v1
+  metadata:
+    name: ${APPLICATION_NAME}-db-secret
+  spec: 
+    stringData:
+      setdbparms.txt: |-
+        dbidentity ${DB_USER} ${DB_PASSWORD}
+- kind: ConfigMap
+  apiVersion: v1
+  metadata:
+    name: ${APPLICATION_NAME}-policies
+  spec:
+    DB2Policy.policyxml: |-
+      <?xml version="1.0" encoding="UTF-8"?>
+      <policies>
+        <policy policyType="JDBCProviders" policyName="DB2Policy" policyTemplate="DB2_91_Windows">
+          <databaseName>${DB_NAME}</databaseName>
+          <databaseType>DB2 Universal Database</databaseType>
+          <databaseVersion>10.6</databaseVersion>
+          <type4DriverClassName>com.ibm.db2.jcc.DB2Driver</type4DriverClassName>
+          <type4DatasourceClassName>com.ibm.db2.jcc.DB2XADataSource</type4DatasourceClassName>
+          <connectionUrlFormat>jdbc:db2://[serverName]:[portNumber]/[databaseName]:user=[user];password=[password];</connectionUrlFormat>
+          <connectionUrlFormatAttr1></connectionUrlFormatAttr1>
+          <connectionUrlFormatAttr2></connectionUrlFormatAttr2>
+          <connectionUrlFormatAttr3></connectionUrlFormatAttr3>
+          <connectionUrlFormatAttr4></connectionUrlFormatAttr4>
+          <connectionUrlFormatAttr5></connectionUrlFormatAttr5>
+          <serverName>${DB_SERVICE_NAME}</serverName>
+          <portNumber>${DB_PORT}</portNumber>
+          <jarsURL>/home/aceuser/db2jcc-db2jcc4.jar</jarsURL>
+          <databaseSchemaNames>${DB_SCHEMA}</databaseSchemaNames>
+          <description></description>
+          <maxConnectionPoolSize>0</maxConnectionPoolSize>
+          <securityIdentity>dbidentity</securityIdentity>
+          <environmentParms></environmentParms>
+          <jdbcProviderXASupport>false</jdbcProviderXASupport>
+          <useDeployedJars>false</useDeployedJars>
+        </policy>
+      </policies>
 - kind: DeploymentConfig
   apiVersion: v1
   metadata:
