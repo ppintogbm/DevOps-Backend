@@ -11,4 +11,4 @@ RUN	chown -R aceuser:mqbrkrs bars/; chown aceuser:mqbrkrs db2jcc-db2jcc4.jar
 #Deploy compiled bar 
 USER	aceuser
 RUN  	ls -la bars/ && \
-    	 ace_compile_bars.sh
+    	ace_compile_bars.sh
