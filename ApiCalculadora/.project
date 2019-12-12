@@ -3,6 +3,7 @@
 	<name>ApiCalculadora</name>
 	<comment></comment>
 	<projects>
+		<project>ApiCalculadoraJava</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

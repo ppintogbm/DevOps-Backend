@@ -10,10 +10,15 @@ CREATE COMPUTE MODULE postOperaciones_EjecutarOperacionAritmetica
 		SET A = InputRoot.JSON.Data.numero1;
 		SET B = InputRoot.JSON.Data.numero2;
 		SET C = InputRoot.JSON.Data.operador;
-		------------------------------------------------		
-		SET OutputRoot = InputRoot;
-		SET OutputRoot.JSON.Data = NULL;
 		------------------------------------------------
+		SET OutputRoot = InputRoot;
+		------------------------------------------------
+		SET OutputLocalEnvironment.DataEntrada.numero1 = A;
+		SET OutputLocalEnvironment.DataEntrada.numero2 = B;
+		SET OutputLocalEnvironment.DataEntrada.operador = C;		
+		------------------------------------------------
+		SET OutputRoot.JSON.Data = NULL;
+		------------------------------------------------	
 		IF B = 0 AND C = '/' THEN
 			SET OutputRoot.JSON.Data.resultado = 'Revise la data enviada, no es posible realizar division entre cero';
 			RETURN TRUE;
