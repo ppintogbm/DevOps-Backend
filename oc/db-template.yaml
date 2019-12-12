@@ -139,6 +139,6 @@ objects:
               - db2
             from:
               kind: ImageStreamTag
-              name: ${IMAGE}
+              name: ${IMAGE_NAME}
               namespace: ${IMAGE_NAMESPACE}
         - type: ConfigChange
