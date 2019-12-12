@@ -22,7 +22,6 @@ pipeline{
 		stage('Build Bars'){
 			steps{
 				container('ace'){
-					sh "bash tree	"
 					sh "bash -c 'mqsipackagebar -a compiled.bar -w . -k ApiCalculadora -o ApiCalculadoraJava/ApiCalculadoraJava.jar'"
 				}
 			}
