@@ -39,7 +39,7 @@ pipeline{
 		stage('Docker build database'){
 			steps{
 				container('docker'){
-					sh "cd database; docker build -t ${registry}/${project}/${dbimage}:${tag} "
+					sh "docker build -t ${registry}/${project}/${dbimage}:${tag} database"
 					sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
 					sh "docker push ${registry}/${project}/${dbimage}:${tag}"
 				}
