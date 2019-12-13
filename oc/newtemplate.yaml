@@ -39,7 +39,7 @@ parameters:
     description: ImageStreamTag para app connect enterprise
     value: ace:latest
 objects:
-  - kind: Secret
+  - kind: Secret #db-secret
     apiVersion: v1
     metadata:
       name: ${APPLICATION_NAME}-db-secret
@@ -47,7 +47,7 @@ objects:
         template.openshift.io/base64-expose-password: "{.data['password']}"
     stringData:
       password: ${DB_PASSWORD}
-  - kind: ConfigMap
+  - kind: ConfigMap #db-config
     apiVersion: v1
     metadata: 
       name: ${APPLICATION_NAME}-db-config
@@ -56,7 +56,7 @@ objects:
     data:
       username: ${DB_USER}
       dbname: ${DB_NAME}   
-  - kind: PersistentVolumeClaim
+  - kind: PersistentVolumeClaim #db-pvc
     apiVersion: v1
     metadata:
       name: ${APPLICATION_NAME}-db-pvc
@@ -66,7 +66,7 @@ objects:
       resources:
         requests:
           storage: ${DB_PVC_SIZE}Gi
-  - kind: Service
+  - kind: Service #db-service
     apiVersion: v1
     metadata:
       name: ${APPLICATION_NAME}-db
@@ -90,7 +90,7 @@ objects:
         - port: 60007
           protocol: TCP
           name: 60007-tcp
-  - kind: DeploymentConfig
+  - kind: DeploymentConfig #db-deployment
     apiVersion: v1
     metadata:
       name: ${APPLICATION_NAME}-db
@@ -155,14 +155,14 @@ objects:
               name: ${DB_IMAGE_NAME}
               namespace: ${IMAGE_NAMESPACE}
         - type: ConfigChange
-  - kind: Secret 
+  - kind: Secret #app-setdbparms
     apiVersion: v1
     metadata:
       name: ${APPLICATION_NAME}-app-setdbparms
     stringData:
       setdbparms.txt: |-
-        dbidentity ${DB_USER} ${DB_PASSWORD}
-  - kind: ConfigMap
+        jdbc:dbidentity ${DB_USER} ${DB_PASSWORD}
+  - kind: ConfigMap #app-policies
     apiVersion: v1
     metadata:
       name: ${APPLICATION_NAME}-app-policies
@@ -184,7 +184,7 @@ objects:
             <connectionUrlFormatAttr5></connectionUrlFormatAttr5>
             <serverName>${APPLICATION_NAME}-db</serverName>
             <portNumber>50000</portNumber>
-            <jarsURL>/home/aceuser/db2jcc-db2jcc4.jar</jarsURL>
+            <jarsURL>/home/aceuser/</jarsURL>
             <databaseSchemaNames>DB2INST1</databaseSchemaNames>
             <description></description>
             <maxConnectionPoolSize>0</maxConnectionPoolSize>
@@ -194,7 +194,7 @@ objects:
             <useDeployedJars>false</useDeployedJars>
           </policy>
         </policies>
-  - kind: DeploymentConfig
+  - kind: DeploymentConfig #app-deployment
     apiVersion: v1
     metadata:
       name: ${APPLICATION_NAME}-app
@@ -221,7 +221,7 @@ objects:
                 value: accept
               volumeMounts:
                 - name: policies
-                  mountPath: /home/aceuser/initial-config/policy
+                  mountPath: /home/aceuser/ace-server/overrides/Policies
                 - name: setdbparms
                   mountPath: /home/aceuser/initial-config/setdbparms
               image: " "
@@ -275,7 +275,7 @@ objects:
               name: ${ACE_IMAGE_NAME}
               namespace: ${IMAGE_NAMESPACE}
         - type: ConfigChange
-  - kind: Service
+  - kind: Service #app-service
     apiVersion: v1
     metadata:
       name: ${APPLICATION_NAME}-app
@@ -300,13 +300,23 @@ objects:
         port: 9843
         protocol: TCP
         targetPort: 9843
-  - kind: Route
+  - kind: Route #app-route
     apiVersion: v1
     metadata: 
       name: ${APPLICATION_NAME}-app
     spec: 
       port:
         targetPort: 7800-tcp
+      to:
+        kind: Service
+        name: ${APPLICATION_NAME}-app
+  - kind: Route #app-admin-route
+    apiVersion: v1
+    metadata:
+      name: ${APPLICATION_NAME}-app-admin
+    spec:
+      port:
+        targetPort: 7600-tcp
       to:
         kind: Service
         name: ${APPLICATION_NAME}-app
