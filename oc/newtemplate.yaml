@@ -161,7 +161,7 @@ objects:
       name: ${APPLICATION_NAME}-app-setdbparms
     stringData:
       setdbparms.txt: |-
-        jdbc:dbidentity ${DB_USER} ${DB_PASSWORD}
+        jdbc::dbidentity ${DB_USER} ${DB_PASSWORD}
   - kind: ConfigMap #app-policies
     apiVersion: v1
     metadata:
