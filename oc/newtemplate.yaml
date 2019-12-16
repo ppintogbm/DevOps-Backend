@@ -1,0 +1,322 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: api-calculadora
+  description: Plantilla para desplegar piloto \#3 Calculadora
+  tags: ibmcom/db2 ibmcom/ace
+labels:
+  template: api-calculadora
+  version: "1.0"
+  app: ${APPLICATION_NAME}
+parameters:
+  - name: APPLICATION_NAME
+    description: Prefijo para nombre de recursos en la aplicación
+    required: true
+    value: api-calculadora
+  - name: DB_USER
+    description: Contraseña de base de datos
+    generate: expression
+    value: db2inst1
+  - name: DB_PASSWORD
+    description: Contraseña de base de datos
+    generate: expression
+    from: "[a-zA-Z0-9]{12}"
+  - name: DB_NAME
+    description: Nombre de base de datos
+    required: true
+  - name: DB_PVC_SIZE
+    description: Tamaño en Gi de volumen persistente para base de datos
+    required: true
+  - name: IMAGE_NAMESPACE
+    description: Namespace para imagenes
+    required: true
+    value: openshift  
+  - name: DB_IMAGE_NAME
+    description: ImageStreamTag para base de datos
+    required: true
+    value: db2:latest
+  - name: ACE_IMAGE_NAME
+    description: ImageStreamTag para app connect enterprise
+    value: ace:latest
+objects:
+  - kind: Secret #db-secret
+    apiVersion: v1
+    metadata:
+      name: ${APPLICATION_NAME}-db-secret
+      annotations: 
+        template.openshift.io/base64-expose-password: "{.data['password']}"
+    stringData:
+      password: ${DB_PASSWORD}
+  - kind: ConfigMap #db-config
+    apiVersion: v1
+    metadata: 
+      name: ${APPLICATION_NAME}-db-config
+      annotations:
+        template.openshift.io/expose-username: "{.data['username']}"
+    data:
+      username: ${DB_USER}
+      dbname: ${DB_NAME}   
+  - kind: PersistentVolumeClaim #db-pvc
+    apiVersion: v1
+    metadata:
+      name: ${APPLICATION_NAME}-db-pvc
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: ${DB_PVC_SIZE}Gi
+  - kind: Service #db-service
+    apiVersion: v1
+    metadata:
+      name: ${APPLICATION_NAME}-db
+    spec:
+      selector:
+        app: ${APPLICATION_NAME}-db
+      type: ClusterIP
+      ports:
+        - port: 22
+          protocol: TCP
+          name: 22-tcp
+        - port: 50000
+          protocol: TCP
+          name: 50000-tcp
+        - port: 55000
+          protocol: TCP
+          name: 55000-tcp
+        - port: 60006
+          protocol: TCP
+          name: 60006-tcp
+        - port: 60007
+          protocol: TCP
+          name: 60007-tcp
+  - kind: DeploymentConfig #db-deployment
+    apiVersion: v1
+    metadata:
+      name: ${APPLICATION_NAME}-db
+    spec:
+      replicas: 1
+      selector:
+        app: ${APPLICATION_NAME}-db
+      template:
+        metadata:
+          labels:
+            app: ${APPLICATION_NAME}-db
+        spec:
+          volumes:
+            - name: db2-1
+              persistentVolumeClaim: 
+                claimName: ${APPLICATION_NAME}-db-pvc
+            - name: db2-2
+              emptyDir: {}
+          containers:
+          - name: db2
+            securityContext:
+              privileged: true
+            env:
+              - name: LICENSE
+                value: accept
+              - name: DB2_DBNAME
+                valueFrom:
+                  configMapKeyRef:
+                    name: ${APPLICATION_NAME}-db-config
+                    key: dbname
+              - name: DB2INST1_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: ${APPLICATION_NAME}-db-secret
+                    key: password
+            image: " "
+            imagePullPolicy: "Always"
+            ports:
+              - containerPort: 22
+                protocol: TCP
+              - containerPort: 50000
+                protocol: TCP
+              - containerPort: 55000
+                protocol: TCP
+              - containerPort: 60006
+                protocol: TCP
+              - containerPort: 60007
+                protocol: TCP
+            volumeMounts:
+              - mountPath: /database
+                name: db2-1
+              - mountPath: /hadr
+                name: db2-2
+      triggers:
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - db2
+            from:
+              kind: ImageStreamTag
+              name: ${DB_IMAGE_NAME}
+              namespace: ${IMAGE_NAMESPACE}
+        - type: ConfigChange
+  - kind: Secret #api-setdbparms
+    apiVersion: v1
+    metadata:
+      name: ${APPLICATION_NAME}-api-setdbparms
+    stringData:
+      setdbparms.txt: |-
+        jdbc::dbidentity ${DB_USER} ${DB_PASSWORD}
+  - kind: ConfigMap #api-policies
+    apiVersion: v1
+    metadata:
+      name: ${APPLICATION_NAME}-api-policies
+    data:
+      DB2Policy.policyxml: |-
+        <?xml version="1.0" encoding="UTF-8"?>
+        <policies>
+          <policy policyType="JDBCProviders" policyName="DB2Policy" policyTemplate="DB2_91_Windows">
+            <databaseName>${DB_NAME}</databaseName>
+            <databaseType>DB2 Universal Database</databaseType>
+            <databaseVersion>10.6</databaseVersion>
+            <type4DriverClassName>com.ibm.db2.jcc.DB2Driver</type4DriverClassName>
+            <type4DatasourceClassName>com.ibm.db2.jcc.DB2XADataSource</type4DatasourceClassName>
+            <connectionUrlFormat>jdbc:db2://[serverName]:[portNumber]/[databaseName]:user=[user];password=[password];</connectionUrlFormat>
+            <connectionUrlFormatAttr1></connectionUrlFormatAttr1>
+            <connectionUrlFormatAttr2></connectionUrlFormatAttr2>
+            <connectionUrlFormatAttr3></connectionUrlFormatAttr3>
+            <connectionUrlFormatAttr4></connectionUrlFormatAttr4>
+            <connectionUrlFormatAttr5></connectionUrlFormatAttr5>
+            <serverName>${APPLICATION_NAME}-db</serverName>
+            <portNumber>50000</portNumber>
+            <jarsURL>/home/aceuser/</jarsURL>
+            <databaseSchemaNames>DB2INST1</databaseSchemaNames>
+            <description></description>
+            <maxConnectionPoolSize>0</maxConnectionPoolSize>
+            <securityIdentity>dbidentity</securityIdentity>
+            <environmentParms></environmentParms>
+            <jdbcProviderXASupport>false</jdbcProviderXASupport>
+            <useDeployedJars>false</useDeployedJars>
+          </policy>
+        </policies>
+  - kind: DeploymentConfig #api-deployment
+    apiVersion: v1
+    metadata:
+      name: ${APPLICATION_NAME}-api
+    spec:
+      replicas: 1
+      selector: 
+        app: ${APPLICATION_NAME}-api
+      template:
+        metadata:
+          labels: 
+            app: ${APPLICATION_NAME}-api
+        spec:
+          volumes:
+            - name: policies
+              configMap:
+                name: ${APPLICATION_NAME}-api-policies
+            - name: setdbparms
+              secret:
+                secretName: ${APPLICATION_NAME}-api-setdbparms
+          containers:
+            - name: ace
+              env: 
+              - name: LICENSE
+                value: accept
+              volumeMounts:
+                - name: policies
+                  mountPath: /home/aceuser/ace-server/overrides/Policies
+                - name: setdbparms
+                  mountPath: /home/aceuser/initial-config/setdbparms
+              image: " "
+              imagePullPolicy: "Always"
+              ports:
+              - containerPort: 7600
+                protocol: TCP
+              - containerPort: 7800
+                protocol: TCP
+              - containerPort: 7843
+                protocol: TCP
+              - containerPort: 9483
+                protocol: TCP
+              livenessProbe: 
+                exec:
+                  command: 
+                  - chkacehealthy
+              readinessProbe: 
+                exec:
+                  command: 
+                  - chkaceready
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: false
+                runAsNonRoot: true
+                runAsUser: 1000
+                privileged: false
+                capabilities:
+                  add:
+                  - SETPCAP
+                  - AUDIT_WRITE
+                  - CHOWN
+                  - NET_RAW
+                  - DAC_OVERRIDE
+                  - FOWNER
+                  - FSETID
+                  - KILL
+                  - SETUID
+                  - SETGID
+                  - NET_BIND_SERVICE
+                  - SYS_CHROOT
+                  - SETFCAP
+      triggers: 
+        - type: ImageChange
+          imageChangeParams:
+            containerNames:
+            - ace
+            automatic: true
+            from: 
+              kind: ImageStreamTag
+              name: ${ACE_IMAGE_NAME}
+              namespace: ${IMAGE_NAMESPACE}
+        - type: ConfigChange
+  - kind: Service #api-service
+    apiVersion: v1
+    metadata:
+      name: ${APPLICATION_NAME}-api
+    spec:
+      selector: 
+        app: ${APPLICATION_NAME}-api
+      type: ClusterIP
+      ports:
+      - name: 7600-tcp
+        port: 7600
+        protocol: TCP
+        targetPort: 7600
+      - name: 7800-tcp
+        port: 7800
+        protocol: TCP
+        targetPort: 7800
+      - name: 7843-tcp
+        port: 7843
+        protocol: TCP
+        targetPort: 7843
+      - name: 9843-tcp
+        port: 9843
+        protocol: TCP
+        targetPort: 9843
+  - kind: Route #api-route
+    apiVersion: v1
+    metadata: 
+      name: ${APPLICATION_NAME}-api
+    spec: 
+      port:
+        targetPort: 7800-tcp
+      to:
+        kind: Service
+        name: ${APPLICATION_NAME}-api
+  - kind: Route #api-admin-route
+    apiVersion: v1
+    metadata:
+      name: ${APPLICATION_NAME}-api-admin
+    spec:
+      port:
+        targetPort: 7600-tcp
+      to:
+        kind: Service
+        name: ${APPLICATION_NAME}-api
