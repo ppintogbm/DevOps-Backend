@@ -75,3 +75,15 @@ oc start-build [pipeline-name]
 ```console
 oc get dc -l app=[image-stream-name]
 ```
+## Composición
+El seguimiento de los pasos previamente descritos, estará generando lo siguiente:
+
+- Imagenes de docker basadas en `ibmcom/ace` y `ibmcom/db2`, las cuales contienen los ajustes y/o personalizaciones para el uso del piloto.
+- Recursos en Openshift para instanciar las imágenes previamente indicadas, siendo estos:
+  - 2 `DeploymentConfigs` (`api` y `bd`)
+  - 2 `Service` (`api` y `bd`)
+  - 2 `Routes` (`api`, administración para `ace` del `api`)
+  - 2 `Secrets` 
+  - 2 `ConfigMaps` 
+  - 1 `PersistentVolumeClaim`
+- Cada imagen define también, a su vez, su correspondiente `ImageStream` dentro del proyecto y como minimo 2 `ImageStreamTags` por cada una, referenciando a las 2 imagenes creadas por el pipeline, con los tags `latest` y uno basado en el Commit Id del repositorio
