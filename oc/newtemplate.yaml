@@ -155,17 +155,17 @@ objects:
               name: ${DB_IMAGE_NAME}
               namespace: ${IMAGE_NAMESPACE}
         - type: ConfigChange
-  - kind: Secret #app-setdbparms
+  - kind: Secret #api-setdbparms
     apiVersion: v1
     metadata:
-      name: ${APPLICATION_NAME}-app-setdbparms
+      name: ${APPLICATION_NAME}-api-setdbparms
     stringData:
       setdbparms.txt: |-
         jdbc::dbidentity ${DB_USER} ${DB_PASSWORD}
-  - kind: ConfigMap #app-policies
+  - kind: ConfigMap #api-policies
     apiVersion: v1
     metadata:
-      name: ${APPLICATION_NAME}-app-policies
+      name: ${APPLICATION_NAME}-api-policies
     data:
       DB2Policy.policyxml: |-
         <?xml version="1.0" encoding="UTF-8"?>
@@ -194,26 +194,26 @@ objects:
             <useDeployedJars>false</useDeployedJars>
           </policy>
         </policies>
-  - kind: DeploymentConfig #app-deployment
+  - kind: DeploymentConfig #api-deployment
     apiVersion: v1
     metadata:
-      name: ${APPLICATION_NAME}-app
+      name: ${APPLICATION_NAME}-api
     spec:
       replicas: 1
       selector: 
-        app: ${APPLICATION_NAME}-app
+        app: ${APPLICATION_NAME}-api
       template:
         metadata:
           labels: 
-            app: ${APPLICATION_NAME}-app
+            app: ${APPLICATION_NAME}-api
         spec:
           volumes:
             - name: policies
               configMap:
-                name: ${APPLICATION_NAME}-app-policies
+                name: ${APPLICATION_NAME}-api-policies
             - name: setdbparms
               secret:
-                secretName: ${APPLICATION_NAME}-app-setdbparms
+                secretName: ${APPLICATION_NAME}-api-setdbparms
           containers:
             - name: ace
               env: 
@@ -275,13 +275,13 @@ objects:
               name: ${ACE_IMAGE_NAME}
               namespace: ${IMAGE_NAMESPACE}
         - type: ConfigChange
-  - kind: Service #app-service
+  - kind: Service #api-service
     apiVersion: v1
     metadata:
-      name: ${APPLICATION_NAME}-app
+      name: ${APPLICATION_NAME}-api
     spec:
       selector: 
-        app: ${APPLICATION_NAME}-app
+        app: ${APPLICATION_NAME}-api
       type: ClusterIP
       ports:
       - name: 7600-tcp
@@ -300,23 +300,23 @@ objects:
         port: 9843
         protocol: TCP
         targetPort: 9843
-  - kind: Route #app-route
+  - kind: Route #api-route
     apiVersion: v1
     metadata: 
-      name: ${APPLICATION_NAME}-app
+      name: ${APPLICATION_NAME}-api
     spec: 
       port:
         targetPort: 7800-tcp
       to:
         kind: Service
-        name: ${APPLICATION_NAME}-app
-  - kind: Route #app-admin-route
+        name: ${APPLICATION_NAME}-api
+  - kind: Route #api-admin-route
     apiVersion: v1
     metadata:
-      name: ${APPLICATION_NAME}-app-admin
+      name: ${APPLICATION_NAME}-api-admin
     spec:
       port:
         targetPort: 7600-tcp
       to:
         kind: Service
-        name: ${APPLICATION_NAME}-app
+        name: ${APPLICATION_NAME}-api

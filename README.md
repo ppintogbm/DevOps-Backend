@@ -21,20 +21,26 @@ oc adm policy add-role-to-user admin developer
 ```bash
 oc adm policy add-scc-to-user privileged -z jenkins
 ```
+5. Brindamos el contexto de seguridad `privileged` a la cuenta de servicio `default`
+```bash
+oc adm policy add-scc-to-user privileged -z default
+```
+<!-- 
 5. Creamos el contexto de seguridad `ibm-anyuid-scc`
 ```bash
 oc create -f https://github.com/IBM/cloud-pak/raw/master/spec/security/scc/ibm-anyuid-scc.yaml
 ```
-6. Brindamos el contexto de seguridad `ibm-anyuid-scc` a la cuenta de servicio `default` (predeterminada) del proyecto
+1. Brindamos el contexto de seguridad `ibm-anyuid-scc` a la cuenta de servicio `default` (predeterminada) del proyecto
 ```bash
 oc adm policy add-scc-to-user ibm-anyuid-scc -z default
 ```
-7. Configuramos el pipeline de despliegue del presente repositorio, tomando en cuenta las siguientes variables en el siguiente ejemplo de YAML:
+-->
+6. Configuramos el pipeline de despliegue del presente repositorio, tomando en cuenta las siguientes variables en el siguiente ejemplo de YAML:
     1. `pipeline-name`: Nombre del recurso BuildConfig a ser creado.
     2. `git-url`: Dirección del git. 
     3. `openshift-current-project`: Nombre del proyecto donde se está desplegando el pipeline.
     4. `registry`: Dirección interna del registro de openshift (predeterminado: 172.30.1.1:5000).
-    5. `image-stream-name`: Nombre de la imágen a construir (predeterminado: api-calculadora).
+    5. `app`: Prefijo para los diferentes recursos e imágenes a ser generadas (predeterminado: api-calculadora). 
 
 `pipeline-name.yaml`
 ```yaml
@@ -57,15 +63,15 @@ spec:
         value: [openshift-current-project]
       - name: registry
         value: [registry-url]
-      - name: image
-        value: [image-stream-name]
+      - name: app
+        value: [app-prefix]
     type: JenkinsPipeline
 ```
-8. Inicializamos el pipeline creado
+7. Inicializamos el pipeline creado
 ```console
 oc start-build [pipeline-name]
 ```
-9. Concluido el despliegue, deberíamos observar el mismo en la consola de openshift o incluso por medio del siguiente comando: 
+8. Concluido el despliegue, deberíamos observar el mismo en la consola de openshift o incluso por medio del siguiente comando: 
 ```console
 oc get dc -l app=[image-stream-name]
 ```
