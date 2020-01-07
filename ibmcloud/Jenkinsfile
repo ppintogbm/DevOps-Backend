@@ -21,7 +21,7 @@ pipeline{
 		}
 		stage('Build Bars'){
 			steps{
-				container('ace'){
+				container(name:'ace', shell: '/bin/bash'){
 					sh "bash -c 'mqsipackagebar -a compiled.bar -w . -k ApiCalculadora'"
 				}
 			}
@@ -30,19 +30,20 @@ pipeline{
 			parallel{
 				stage('Build ACE'){
 					steps{
-						container('docker'){
-							sh "docker build -t ${registry}/${project}/${app}-api:${tag} ."
-							sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
-							sh "docker push ${registry}/${project}/${app}-api:${tag}"
+						container(name: 'kaniko', shell:'/bin/bash'){
+							sh "/kaniko/executor --context pwd --verbosity debug --destination ${registry}/${project}/${app}-api:${tag}"
+							//sh "docker build -t ${registry}/${project}/${app}-api:${tag} ."
+							//sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
+							//sh "docker push ${registry}/${project}/${app}-api:${tag}"
 						}
 					}
 				}
 				stage('Build DB'){
 					steps{
 						container('docker'){
-							sh "docker build -t ${registry}/${project}/${app}-db:${tag} database"
-							sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
-							sh "docker push ${registry}/${project}/${app}-db:${tag}"
+							//sh "docker build -t ${registry}/${project}/${app}-db:${tag} database"
+							//sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
+							//sh "docker push ${registry}/${project}/${app}-db:${tag}"
 						}	
 					}
 				}

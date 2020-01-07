@@ -5,24 +5,17 @@ metadata:
     app: jenkins-ephemeral
 spec:
   serviceAccountName: jenkinsci
-  volumes: 
-  - name: docker-sock
-    hostPath:
-      path: /var/run/docker.sock
   containers:
   - name: origin
     image: openshift/origin-cli
     command: 
     - cat
     tty: true
-  - name: docker
-    image: docker:18.06.1-ce
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:latest
     command:
     - cat
     tty: true
-    volumeMounts:
-    - mountPath: /var/run/docker.sock
-      name: docker-sock
     securityContext:
       allowPrivilegeEscalation: true
       privileged: true
