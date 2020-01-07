@@ -7,7 +7,7 @@ spec:
   serviceAccountName: jenkinsci
   containers:
   - name: kaniko
-    image: csanchez/kaniko
+    image: csanchez/kaniko:jenkins
     command:
     - cat
     tty: true
