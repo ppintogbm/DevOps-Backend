@@ -6,13 +6,8 @@ metadata:
 spec:
   serviceAccountName: jenkinsci
   containers:
-  - name: origin
-    image: openshift/origin-cli
-    command: 
-    - cat
-    tty: true
   - name: kaniko
-    image: gcr.io/kaniko-project/executor:latest
+    image: csanchez/kaniko
     command:
     - cat
     tty: true
