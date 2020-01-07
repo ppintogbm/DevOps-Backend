@@ -45,4 +45,4 @@ spec:
         - SETGID
         - NET_BIND_SERVICE
         - SYS_CHROOT
-        - SETFCAP
+        - SETFCAP 
