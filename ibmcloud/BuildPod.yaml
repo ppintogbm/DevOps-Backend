@@ -6,8 +6,8 @@ metadata:
 spec:
   serviceAccountName: jenkinsci
   containers:
-  - name: kaniko
-    image: csanchez/kaniko:jenkins
+  - name: buildah
+    image: quay.io/buildah/stable
     command:
     - cat
     tty: true

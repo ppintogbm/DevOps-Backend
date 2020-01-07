@@ -30,9 +30,9 @@ pipeline{
 			parallel{
 				stage('Build ACE'){
 					steps{
-						container('kaniko'){
+						container('buildah'){
 							sh ''
-							sh "/kaniko/executor --context `pwd` --dockerfile `pwd`/Dockerfile --verbosity debug --destination ${registry}/${project}/${app}-api:${tag}"
+							sh "buildah build-using-dockerfile ."
 							//sh "docker build -t ${registry}/${project}/${app}-api:${tag} ."
 							//sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
 							//sh "docker push ${registry}/${project}/${app}-api:${tag}"
