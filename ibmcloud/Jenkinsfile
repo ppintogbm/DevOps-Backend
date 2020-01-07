@@ -21,7 +21,7 @@ pipeline{
 		}
 		stage('Build Bars'){
 			steps{
-				container(name:'ace', shell: '/bin/bash'){
+				container('ace'){
 					sh "bash -c 'mqsipackagebar -a compiled.bar -w . -k ApiCalculadora'"
 				}
 			}
@@ -30,7 +30,7 @@ pipeline{
 			parallel{
 				stage('Build ACE'){
 					steps{
-						container(name: 'kaniko', shell:'/bin/bash'){
+						container('kaniko'){
 							sh "/kaniko/executor --context pwd --verbosity debug --destination ${registry}/${project}/${app}-api:${tag}"
 							//sh "docker build -t ${registry}/${project}/${app}-api:${tag} ."
 							//sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
