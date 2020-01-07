@@ -7,9 +7,9 @@ COPY 	initial-config	initial-config
 
 #Change permissions from copied bar
 USER	root
-RUN	chown -R aceuser:mqbrkrs bars/; chown aceuser:mqbrkrs db2jcc-db2jcc4.jar; chown aceuser:mqbrkrs -R initial-config
+RUN	chown -R 1000:mqbrkrs bars/; chown 1000:mqbrkrs db2jcc-db2jcc4.jar; chown 1000:mqbrkrs -R initial-config
 
 #Deploy compiled bar 
-USER	aceuser
+USER	1000
 RUN  	ls -la bars/ && \
     	ace_compile_bars.sh
