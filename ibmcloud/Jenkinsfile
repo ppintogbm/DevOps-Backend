@@ -23,7 +23,7 @@ pipeline{
 			steps{
 				container('ace'){
 					sh "bash -c 'mqsipackagebar -a compiled.bar -w . -k ApiCalculadora'"
-					sh "bash -c 'sudo chown build:build compiled.bar'"
+					sh "bash -c 'chown build:build compiled.bar'"
 				}
 			}
    	}
