@@ -3,7 +3,7 @@ pipeline{
 		kubernetes{
 			cloud "kubernetes"
 			label "backend-build"
-			yamlFile "BuildPod.yaml"
+			yamlFile "ibmcloud/BuildPod.yaml"
 		}
   }
 	parameters{
