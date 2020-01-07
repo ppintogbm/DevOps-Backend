@@ -23,6 +23,8 @@ pipeline{
 			steps{
 				container('ace'){
 					sh "bash -c 'mqsipackagebar -a compiled.bar -w . -k ApiCalculadora'"
+				}
+				container('jnlp'){
 					sh "bash -c 'chown build:build compiled.bar'"
 				}
 			}
