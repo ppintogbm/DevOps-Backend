@@ -31,6 +31,7 @@ pipeline{
 				stage('Build ACE'){
 					steps{
 						container('buildah'){
+							sh "stat compiled.bar"
 							sh "sudo buildah build-using-dockerfile ."
 							//sh "docker build -t ${registry}/${project}/${app}-api:${tag} ."
 							//sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
