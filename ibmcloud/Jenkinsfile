@@ -33,7 +33,8 @@ pipeline{
 						container('buildah'){
 							sh "groupadd --gid 1001 mqbrkrs"
 							sh "stat compiled.bar"
-							sh "sudo buildah build-using-dockerfile ."
+							//sh "sudo buildah build-using-dockerfile ."
+							sh "ibmcloud/build.sh"
 							//sh "docker build -t ${registry}/${project}/${app}-api:${tag} ."
 							//sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
 							//sh "docker push ${registry}/${project}/${app}-api:${tag}"
