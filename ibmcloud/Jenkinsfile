@@ -28,6 +28,9 @@ pipeline{
    	}
 		stage('Docker build'){
 			parallel{
+				environment {
+        	PATH = "/busybox:/kaniko:$PATH"
+      	}
 				stage('Build ACE'){
 					steps{
 						/*
@@ -42,7 +45,9 @@ pipeline{
 						}
 						*/
 						container('kaniko'){
-							sh "/kaniko/executor --dockerfile=`pwd`/Dockerfile --context=`pwd` --no-push --verbosity debug"
+							sh  '''#!/busybox/sh
+									/kaniko/executor --dockerfile=`pwd`/Dockerfile --context=`pwd` --no-push --verbosity debug
+								  '''
 						}
 					}
 				}

@@ -15,10 +15,11 @@ spec:
 #      allowPrivilegeEscalation: true
 #      privileged: true
   - name: kaniko
-    image: ppintogbm/kaniko:jenkins
+#    image: ppintogbm/kaniko:jenkins
+    image: gcr.io/kaniko-project/executor:debug
     imagePullPolicy: Always
     command:
-    - cat
+    - /busybox/cat
     tty: true
   - name: ace
     image: ibmcom/ace
