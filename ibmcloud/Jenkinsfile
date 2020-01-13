@@ -42,7 +42,7 @@ pipeline{
 						}
 						*/
 						container('kaniko'){
-							sh "/kaniko/executor --dockerfile=`pwd`/Dockerfile --context=`pwd` --destination=${registry}/${project}/${app}:${tag}"
+							sh "/kaniko/executor --dockerfile=`pwd`/Dockerfile --context=`pwd` --no-push --verbosity debug"
 						}
 					}
 				}
