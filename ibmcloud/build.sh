@@ -12,7 +12,7 @@ buildah copy --chown 1000:1001 $container initial-config /home/aceuser/initial-c
 
 buildah config --user 1000 --shell "/bin/bash -c" $container
 #Deploy Bars
-buildah run $container -- ace_compile_bars.sh
+buildah run $container -- /bin/bash -c "ace_compile_bars.sh"
 
 buildah commit $container "$image_name:$image_tag"
 
