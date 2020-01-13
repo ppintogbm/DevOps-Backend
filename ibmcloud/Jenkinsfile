@@ -28,10 +28,10 @@ pipeline{
    	}
 		stage('Docker build'){
 			parallel{
-				environment {
-        	PATH = "/busybox:/kaniko:$PATH"
-      	}
 				stage('Build ACE'){
+					environment {
+        		PATH = "/busybox:/kaniko:$PATH"
+      		}
 					steps{
 						/*
 						container('buildah'){
