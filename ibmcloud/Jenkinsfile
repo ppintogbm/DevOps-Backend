@@ -32,7 +32,7 @@ pipeline{
 					steps{
 						/*
 						container('buildah'){
-							sh "groupadd --gid 1001 mqbrkrs"
+							sh "groupadd --gi`pwd`d 1001 mqbrkrs"
 							sh "stat compiled.bar"
 							//sh "sudo buildah build-using-dockerfile ."
 							sh "ibmcloud/build.sh"
@@ -42,7 +42,7 @@ pipeline{
 						}
 						*/
 						container('kaniko'){
-							sh "/kaniko/executor --dockerfile=`pwd`/Dockerfile --context=`pwd`"
+							sh "/kaniko/executor --dockerfile=`pwd`/Dockerfile --context=`pwd` --destination=${registry}/${namespace}/${app}:${tag}"
 						}
 					}
 				}
