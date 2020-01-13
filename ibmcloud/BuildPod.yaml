@@ -6,14 +6,19 @@ metadata:
 spec:
   serviceAccountName: jenkinsci
   containers:
-  - name: buildah
-    image: quay.io/buildah/stable
+#  - name: buildah
+#    image: quay.io/buildah/stable
+#    command:
+#    - cat
+#    tty: true
+#    securityContext:
+#      allowPrivilegeEscalation: true
+#      privileged: true
+  - name: kaniko
+    image: docker.io/csanchez/kaniko
     command:
     - cat
     tty: true
-    securityContext:
-      allowPrivilegeEscalation: true
-      privileged: true
   - name: ace
     image: ibmcom/ace
     command: 
