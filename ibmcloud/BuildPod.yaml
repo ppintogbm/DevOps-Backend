@@ -16,6 +16,7 @@ spec:
 #      privileged: true
   - name: kaniko
     image: ppintogbm/kaniko:jenkins
+    imagePullPolicy: Always
     command:
     - cat
     tty: true
