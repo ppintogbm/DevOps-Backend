@@ -15,7 +15,7 @@ spec:
 #      allowPrivilegeEscalation: true
 #      privileged: true
   - name: kaniko
-    image: docker.io/csanchez/kaniko
+    image: csanchez/kaniko
     command:
     - cat
     tty: true
