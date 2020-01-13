@@ -9,7 +9,7 @@ spec:
     projected:
       sources:
       - secret: 
-        - name: ibmcloud-cr
+          name: ibmcloud-cr
           items:
           - key: .dockerconfigjson
             path: config.json    
