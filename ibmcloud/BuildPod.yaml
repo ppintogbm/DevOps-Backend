@@ -15,7 +15,7 @@ spec:
 #      allowPrivilegeEscalation: true
 #      privileged: true
   - name: kaniko
-    image: csanchez/kaniko
+    image: csanchez/kaniko:jenkins
     command:
     - cat
     tty: true
