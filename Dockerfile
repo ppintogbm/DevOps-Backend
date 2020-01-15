@@ -10,5 +10,5 @@ USER	root
 RUN	chown -R aceuser:mqbrkrs bars/; chown aceuser:mqbrkrs db2jcc-db2jcc4.jar; chown aceuser:mqbrkrs -R initial-config
 
 #Deploy compiled bar 
-#USER	aceuser
+#USER	aceuser //commented for tests
 RUN  	su - aceuser && id -u -n && groups && ls -l bars && ace_compile_bars.sh
