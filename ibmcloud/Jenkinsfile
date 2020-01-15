@@ -47,7 +47,7 @@ pipeline{
 						container('kaniko'){
 							echo "Image to built: ${registry}/${project}/${app}:${tag}"
 							sh  '''#!/busybox/sh
-									/kaniko/executor --dockerfile=`pwd`/Dockerfile --context=`pwd` --destination="${registry}/${project}/${app}:${tag}"
+									/kaniko/executor --dockerfile=`pwd`/Dockerfile --context=`pwd` --verbosity debug --destination="${registry}/${project}/${app}:${tag}"
 								  '''
 						}
 					}
