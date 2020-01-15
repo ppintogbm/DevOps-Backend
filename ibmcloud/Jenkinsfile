@@ -26,51 +26,47 @@ pipeline{
 				}
 			}
    	}
-		stage('Docker build'){
-			parallel{
-				stage('Build ACE'){
-					environment {
-        		PATH = "/busybox:/kaniko:$PATH"
-      		}
-					steps{
-						/*
-						container('buildah'){
-							sh "groupadd --gi`pwd`d 1001 mqbrkrs"
-							sh "stat compiled.bar"
-							//sh "sudo buildah build-using-dockerfile ."
-							sh "ibmcloud/build.sh"
-							//sh "docker build -t ${registry}/${project}/${app}-api:${tag} ."
-							//sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
-							//sh "docker push ${registry}/${project}/${app}-api:${tag}"
-						}
-						*/
-						container('kaniko'){
-							script{
-								destination = "${registry}/${project}/${app}-api:latest"
-							}
-							echo "Image to built: ${destination}"
-							sh  '''#!/busybox/sh
-									/kaniko/executor --dockerfile=`pwd`/Dockerfile --context=`pwd` --verbosity debug --destination="${registry}/${project}/${app}-api:latest"
-								  '''
-						}
-					}
+		stage('Build ACE'){
+			environment {
+				PATH = "/busybox:/kaniko:$PATH"
+			}
+			steps{
+				/*
+				container('buildah'){
+					sh "groupadd --gi`pwd`d 1001 mqbrkrs"
+					sh "stat compiled.bar"
+					//sh "sudo buildah build-using-dockerfile ."
+					sh "ibmcloud/build.sh"
+					//sh "docker build -t ${registry}/${project}/${app}-api:${tag} ."
+					//sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
+					//sh "docker push ${registry}/${project}/${app}-api:${tag}"
 				}
-				stage('Build DB'){
-					steps{
-						container('kaniko'){
-							//sh "docker build -t ${registry}/${project}/${app}-db:${tag} database"
-							//sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
-							//sh "docker push ${registry}/${project}/${app}-db:${tag}"
-							script{
-								destination = "${registry}/${project}/${app}-db:latest"
-							}
-							echo "Image to built: ${destination}"
-							sh  '''#!/busybox/sh
-									/kaniko/executor --dockerfile=`pwd`/database/Dockerfile --context=`pwd`/database --verbosity debug --destination="${registry}/${project}/${app}-db:latest"
-								  '''
-						}	
+				*/
+				container('kaniko'){
+					script{
+						destination = "${registry}/${project}/${app}-api:latest"
 					}
+					echo "Image to built: ${destination}"
+					sh  '''#!/busybox/sh
+							/kaniko/executor --dockerfile=`pwd`/Dockerfile --context=`pwd` --verbosity debug --destination="${registry}/${project}/${app}-api:latest"
+							'''
 				}
+			}
+		}
+		stage('Build DB'){
+			steps{
+				container('kaniko'){
+					//sh "docker build -t ${registry}/${project}/${app}-db:${tag} database"
+					//sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
+					//sh "docker push ${registry}/${project}/${app}-db:${tag}"
+					script{
+						destination = "${registry}/${project}/${app}-db:latest"
+					}
+					echo "Image to built: ${destination}"
+					sh  '''#!/busybox/sh
+							/kaniko/executor --dockerfile=`pwd`/database/Dockerfile --context=`pwd`/database --verbosity debug --destination="${registry}/${project}/${app}-db:latest"
+							'''
+				}	
 			}
 		}
 	}
