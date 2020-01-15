@@ -7,9 +7,9 @@ pipeline{
 		}
   }
 	parameters{
-		string(defaultValue: "jenkins", description: "Project/Namespace name", name: "project")
+		string(defaultValue: "namespacecda", description: "Project/Namespace name", name: "project")
 		string(defaultValue: "us.icr.io", description: "Registry",  name:"registry")
-		string(defaultValue: "api-calculadora", description: "App Name", name: "app")
+		string(defaultValue: "calculadora", description: "App Name", name: "app")
 	}
 	stages{
 		stage('Prepare'){
@@ -45,19 +45,29 @@ pipeline{
 						}
 						*/
 						container('kaniko'){
-							echo "Image to built: ${registry}/${project}/${app}:${tag}"
+							script{
+								destination = "${registry}/${project}/${app}-api:${tag}"
+							}
+							echo "Image to built: ${destination}"
 							sh  '''#!/busybox/sh
-									/kaniko/executor --dockerfile=`pwd`/Dockerfile --context=`pwd` --verbosity debug --destination="${registry}/${project}/${app}:force"
+									/kaniko/executor --dockerfile=`pwd`/Dockerfile --context=`pwd` --verbosity debug --destination="${destination}"
 								  '''
 						}
 					}
 				}
 				stage('Build DB'){
 					steps{
-						container('docker'){
+						container('kaniko'){
 							//sh "docker build -t ${registry}/${project}/${app}-db:${tag} database"
 							//sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
 							//sh "docker push ${registry}/${project}/${app}-db:${tag}"
+							script{
+								destination = "${registry}/${project}/${app}-db:${tag}"
+							}
+							echo "Image to built: ${destination}"
+							sh  '''#!/busybox/sh
+									/kaniko/executor --dockerfile=`pwd`/database/Dockerfile --context=`pwd`/database --verbosity debug --destination="${destination}"
+								  '''
 						}	
 					}
 				}
