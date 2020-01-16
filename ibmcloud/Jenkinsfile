@@ -31,21 +31,11 @@ pipeline{
 				PATH = "/busybox:/kaniko:$PATH"
 			}
 			steps{
-				/*
-				container('buildah'){
-					sh "groupadd --gi`pwd`d 1001 mqbrkrs"
-					sh "stat compiled.bar"
-					//sh "sudo buildah build-using-dockerfile ."
-					sh "ibmcloud/build.sh"
-					//sh "docker build -t ${registry}/${project}/${app}-api:${tag} ."
-					//sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
-					//sh "docker push ${registry}/${project}/${app}-api:${tag}"
-				}
-				*/
-				container('kaniko'){
-					script{
+				script{
 						pushDir = "${registry}/${project}/${app}-api:${tag}"
-					}
+				}
+				container('kaniko'){
+					
 					//echo "Image to built: ${pushDir}"
 					sh  '''#!/busybox/sh
 							echo "Building ${pushDir}"; /kaniko/executor --dockerfile=Dockerfile --context=dir://`pwd` --destination="${pushDir}"
@@ -55,10 +45,10 @@ pipeline{
 		}
 		stage('Build DB'){
 			steps{
+				script{
+						pushDir = "${registry}/${project}/${app}-api:${tag}"
+				}
 				container('kaniko'){
-					//sh "docker build -t ${registry}/${project}/${app}-db:${tag} database"
-					//sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
-					//sh "docker push ${registry}/${project}/${app}-db:${tag}"
 					script{
 						pushDir = "${registry}/${project}/${app}-db:${tag}"
 					}
