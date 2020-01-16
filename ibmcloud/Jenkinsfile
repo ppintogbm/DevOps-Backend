@@ -29,10 +29,10 @@ pipeline{
 		stage('Build ACE'){
 			environment {
 				PATH = "/busybox:/kaniko:$PATH"
-				REGISTRY = registry
-				NAMESPACE = project
-				IMAGE = app
-				TAG = tag
+				REGISTRY = "${registry}"
+				NAMESPACE = "${project}"
+				IMAGE = "${app}"
+				TAG = "${tag}"
 			}
 			steps{
 				container('kaniko'){
@@ -44,6 +44,13 @@ pipeline{
 			}
 		}
 		stage('Build DB'){
+			environment {
+				PATH = "/busybox:/kaniko:$PATH"
+				REGISTRY = "${registry}"
+				NAMESPACE = "${project}"
+				IMAGE = "${app}"
+				TAG = "${tag}"
+			}
 			steps{
 				container('kaniko'){
 					sh  '''#!/busybox/sh
