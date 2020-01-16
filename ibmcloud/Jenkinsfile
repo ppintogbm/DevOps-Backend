@@ -48,7 +48,7 @@ pipeline{
 					}
 					echo "Image to built: ${destination}"
 					sh  '''#!/busybox/sh
-							/kaniko/executor --dockerfile=Dockerfile --context=dir://`pwd` --verbosity debug --destination="${registry}/${project}/${app}-api:${tag}"
+							/kaniko/executor --dockerfile=Dockerfile --context=dir://`pwd` --destination="${registry}/${project}/${app}-api:${tag}"
 							'''
 				}
 			}
@@ -64,7 +64,7 @@ pipeline{
 					}
 					echo "Image to built: ${destination}"
 					sh  '''#!/busybox/sh
-							/kaniko/executor --dockerfile=Dockerfile --context=dir://`pwd`/database --verbosity debug --destination="${registry}/${project}/${app}-db:${tag}"
+							/kaniko/executor --dockerfile=Dockerfile --context=dir://`pwd`/database --destination="${registry}/${project}/${app}-db:${tag}"
 							'''
 				}	
 			}
