@@ -29,7 +29,7 @@ pipeline{
 		stage('Build ACE'){
 			environment {
 				PATH = "/busybox:/kaniko:$PATH"
-				REGISTRY = "${registry}"
+				REGISTRY = "'${registry}'"
 				NAMESPACE = "${project}"
 				IMAGE = "${app}"
 				TAG = "${tag}"
@@ -46,7 +46,7 @@ pipeline{
 		stage('Build DB'){
 			environment {
 				PATH = "/busybox:/kaniko:$PATH"
-				REGISTRY = "${registry}"
+				REGISTRY = "'${registry}'"
 				NAMESPACE = "${project}"
 				IMAGE = "${app}"
 				TAG = "${tag}"
