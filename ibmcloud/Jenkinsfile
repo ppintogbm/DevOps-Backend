@@ -44,11 +44,11 @@ pipeline{
 				*/
 				container('kaniko'){
 					script{
-						destination = "${registry}/${project}/${app}-api:latest"
+						destination = "${registry}/${project}/${app}-api:${tag}"
 					}
 					echo "Image to built: ${destination}"
 					sh  '''#!/busybox/sh
-							/kaniko/executor --dockerfile=Dockerfile --context=dir://`pwd` --destination="${registry}/${project}/${app}-api:${tag}"
+							/kaniko/executor --dockerfile=Dockerfile --context=dir://`pwd` --destination="${destination}"
 							'''
 				}
 			}
@@ -60,11 +60,11 @@ pipeline{
 					//sh 'docker login -u $(whoami) -p $(cat /var/run/secrets/kubernetes.io/serviceaccount/token) ' + registry + '/' + project
 					//sh "docker push ${registry}/${project}/${app}-db:${tag}"
 					script{
-						destination = "${registry}/${project}/${app}-db:latest"
+						destination = "${registry}/${project}/${app}-db:${tag}"
 					}
 					echo "Image to built: ${destination}"
 					sh  '''#!/busybox/sh
-							/kaniko/executor --dockerfile=Dockerfile --context=dir://`pwd`/database --destination="${registry}/${project}/${app}-db:${tag}"
+							/kaniko/executor --dockerfile=`pwd`/database/Dockerfile --context=dir://`pwd`/database/ --destination="${destination}"
 							'''
 				}	
 			}
