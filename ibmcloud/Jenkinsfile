@@ -29,36 +29,26 @@ pipeline{
 		stage('Build ACE'){
 			environment {
 				PATH = "/busybox:/kaniko:$PATH"
+				REGISTRY = registry
+				NAMESPACE = project
+				IMAGE = app
+				TAG = tag
 			}
 			steps{
-				script{
-						pushDir = "${registry}/${project}/${app}-api:${tag}"
-				}
 				container('kaniko'){
-					
-					//echo "Image to built: ${pushDir}"
 					sh  '''#!/busybox/sh
-							DESTINATION="${registry}/${project}/${app}-api:${tag}"
-							echo "Building $DESTINATION"
-							/kaniko/executor --dockerfile=Dockerfile --context=dir://`pwd` --destination=$DESTINATION
+							echo "Building $REGISTRY/$NAMESPACE/$IMAGE-api:$TAG"
+							/kaniko/executor --dockerfile=Dockerfile --context=dir://`pwd` --destination="$REGISTRY/$NAMESPACE/$IMAGE-api:$TAG"
 							'''
 				}
 			}
 		}
 		stage('Build DB'){
 			steps{
-				script{
-						pushDir = "${registry}/${project}/${app}-api:${tag}"
-				}
 				container('kaniko'){
-					script{
-						pushDir = "${registry}/${project}/${app}-db:${tag}"
-					}
-					echo "Image to built: ${pushDir}"
 					sh  '''#!/busybox/sh
-							DESTINATION="${registry}/${project}/${app}-db:${tag}"
-							echo "Building $DESTINATION"
-							/kaniko/executor --dockerfile=`pwd`/database/Dockerfile --context=dir://`pwd`/database/ --destination="${pushDir}"
+							echo echo "Building $REGISTRY/$NAMESPACE/$IMAGE-db:$TAG"
+							/kaniko/executor --dockerfile=`pwd`/database/Dockerfile --context=dir://`pwd`/database/ --destination="$REGISTRY/$NAMESPACE/$IMAGE-db:$TAG""
 							'''
 				}	
 			}
