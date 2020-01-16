@@ -38,7 +38,9 @@ pipeline{
 					
 					//echo "Image to built: ${pushDir}"
 					sh  '''#!/busybox/sh
-							echo "Building ${pushDir}"; /kaniko/executor --dockerfile=Dockerfile --context=dir://`pwd` --destination="${pushDir}"
+							DESTINATION="${registry}/${project}/${app}-api:${tag}"
+							echo "Building $DESTINATION"
+							/kaniko/executor --dockerfile=Dockerfile --context=dir://`pwd` --destination=$DESTINATION
 							'''
 				}
 			}
@@ -54,6 +56,8 @@ pipeline{
 					}
 					echo "Image to built: ${pushDir}"
 					sh  '''#!/busybox/sh
+							DESTINATION="${registry}/${project}/${app}-db:${tag}"
+							echo "Building $DESTINATION"
 							/kaniko/executor --dockerfile=`pwd`/database/Dockerfile --context=dir://`pwd`/database/ --destination="${pushDir}"
 							'''
 				}	
