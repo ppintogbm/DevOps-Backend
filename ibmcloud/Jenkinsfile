@@ -48,10 +48,26 @@ pipeline{
 			steps{
 				container('kaniko'){
 					sh  '''#!/busybox/sh
-							echo echo "Building $DESTINATION"
+							echo "Building $DESTINATION"
 							/kaniko/executor --dockerfile=`pwd`/database/Dockerfile --context=dir://`pwd`/database/ --destination="$DESTINATION"
 							'''
 				}	
+			}
+		}
+		stage('Deploy'){
+			environment{
+				APPNAME = "${app}"
+				APIIMAGE = "${registry}/${project}/${app}-api"
+				DBIMAGE = "${registry}/${project}/${app}-db"
+				TAG = "${tag}"
+			}
+			steps{
+				container('helm'){
+					sh 	'''#!/bin/sh
+							./helm init --client-only
+							./helm upgrade $APPNAME ibmcloud/charts/calculadora-api --install --set db.dbname=TEST,db.password=passw0rd,api.image.repository=$APIIMAGE,api.image.tag=$TAG,db.image.repository=$DBIMAGE,db.image.tag=$TAG
+							'''
+				}
 			}
 		}
 	}

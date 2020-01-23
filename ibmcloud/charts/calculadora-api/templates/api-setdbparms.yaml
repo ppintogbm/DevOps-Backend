@@ -1,0 +1,9 @@
+kind: Secret
+apiVersion: v1
+metadata:
+  name: {{ include "calculadora-api.fullname" . }}-api-setdbparms
+  labels:
+{{ include "calculadora-api.labels" . | indent 4 }}  
+stringData:
+  setdbparms.txt: |- 
+    jdbc::dbidentity {{ required "Contraseña para base de datos es requerida!" .Values.db.username }} {{ required "Contraseña para base de datos es requerida!" .Values.db.password }}

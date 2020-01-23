@@ -15,6 +15,12 @@ spec:
             path: config.json    
   serviceAccountName: jenkinsci
   containers:
+  - name: helm
+    image: ibmcom/helm
+    imagePullPolicy: Always
+    command:
+    - cat
+    tty: true
   - name: kaniko
     image: gcr.io/kaniko-project/executor:debug
     imagePullPolicy: Always

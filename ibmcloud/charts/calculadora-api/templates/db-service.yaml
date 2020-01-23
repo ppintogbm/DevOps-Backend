@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "calculadora-api.fullname" . }}-db
+  labels:
+{{ include "calculadora-api.labels" . | indent 4 }}
+spec:
+  type: {{ default "ClusterIP" .Values.db.service.type }}
+  ports:
+    - port: 22
+      protocol: TCP
+      name: 22-tcp
+    - port: 50000
+      protocol: TCP
+      name: 50000-tcp
+    - port: 55000
+      protocol: TCP
+      name: 55000-tcp
+    - port: 60006
+      protocol: TCP
+      name: 60006-tcp
+    - port: 60007
+      protocol: TCP
+      name: 60007-tcp
+  selector:
+    app.kubernetes.io/name: {{ include "calculadora-api.name" . }}-db
+    app.kubernetes.io/instance: {{ .Release.Name }}

@@ -1,0 +1,139 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "calculadora-api.fullname" . }}-db
+  labels:
+{{ include "calculadora-api.labels" . | indent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "calculadora-api.name" . }}-db
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "calculadora-api.name" . }}-db
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ .Values.serviceAccountName }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        - name: db2-1
+        {{- if .Values.db.pvc.enabled  }}
+          persistentVolumeClaim:
+            claimName: {{ include "calculadora-api.fullname" . }}-db-pvc
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
+        - name: db2-2
+          emptyDir: {}
+        - name: cgvol
+          hostPath:
+            path: /sys/fs/cgroup
+        - name: sys
+          hostPath:
+            path: /proc/sys
+        - name: proc
+          hostPath:
+            path: /proc
+      hostNetwork: false
+      hostPID: false
+      hostIPC: true
+      initContainers:
+        - name: init-db2
+          image: "{{ .Values.db.image.repository }}:{{ .Values.db.image.tag }}"
+          imagePullPolicy: {{ .Values.db.image.pullPolicy }}
+          command: ['sh','-c','/var/db2_setup/lib/set_kernel_params.sh']
+          volumeMounts:
+          - name: proc
+            mountPath: /host/proc
+            readOnly:  false
+          - name: sys
+            mountPath: /host/proc/sys
+            readOnly: false
+      containers:
+        - name: {{ .Chart.Name }}-db
+          securityContext:
+            privileged: true
+            runAsNonRoot: false
+            runAsUser: 0
+            capabilities:
+              drop:
+              - ALL
+              #Need the default Docker capabilities. Additional ones are "SYS_RESOURCE", "IPC_OWNER", "SYS_NICE"
+              add: ["SYS_RESOURCE", "IPC_OWNER", "SYS_NICE", "SETPCAP", "CHOWN", "FOWNER", "NET_RAW", "DAC_OVERRIDE", "FSETID", "KILL", "SETGID", "SETUID", "MKNOD", "AUDIT_WRITE", "SYS_CHROOT", "NET_BIND_SERVICE", "SETFCAP"]
+            allowPrivilegeEscalation: true
+            readOnlyRootFilesystem: false
+            privileged: false
+          env:
+            - name: LICENSE
+              value: accept
+            - name: DB2INSTANCE
+              value: db2inst1
+            - name: DBNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "calculadora-api.fullname" . }}-db-config
+                  key: dbname
+            - name: DB2INST1_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "calculadora-api.fullname" . }}-db-secret
+                  key: password
+          image: "{{ .Values.db.image.repository }}:{{ .Values.db.image.tag }}"
+          imagePullPolicy: {{ .Values.db.image.pullPolicy }}
+          ports:
+            - containerPort: 22
+              protocol: TCP
+            - containerPort: 50000
+              protocol: TCP
+            - containerPort: 55000
+              protocol: TCP
+            - containerPort: 60007
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /sys/fs/cgroup
+              name: cgvol
+              readOnly: true
+            - mountPath: /database
+              name: db2-1
+            - mountPath: /hadr
+              name: db2-2
+          livenessProbe:
+            exec:
+              command:
+              - sh
+              - -c
+              - su - $DB2INSTANCE  -c '/database/config/$DB2INSTANCE/sqllib/bin/db2gcf -s'
+            initialDelaySeconds: 810
+            periodSeconds: 90
+            failureThreshold: 3 
+          readinessProbe:
+            exec:
+              command:
+              - sh
+              - -c
+              - su - $DB2INSTANCE  -c '/database/config/$DB2INSTANCE/sqllib/bin/db2gcf -s'
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            failureThreshold: 50
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

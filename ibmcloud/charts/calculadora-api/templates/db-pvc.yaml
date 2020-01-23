@@ -1,0 +1,18 @@
+{{ if .Values.db.pvc.enabled }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "calculadora-api.fullname" . }}-db-pvc
+  labels:
+{{ include "calculadora-api.labels" . | indent 4 }}
+spec:
+  {{ if .Values.db.pvc.storageClassName -}}
+  storageClassName: {{ .Values.db.pvc.storageClassName | quote }}
+  {{ end -}}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ default "5Gi" .Values.db.pvc.size }}
+      iops: 800
+{{ end }}
