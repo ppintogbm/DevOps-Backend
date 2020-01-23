@@ -16,7 +16,7 @@ spec:
   serviceAccountName: jenkinsci
   containers:
   - name: helm
-    image: ibmcom/helm
+    image: ibmcom/helm:v2.6.0
     imagePullPolicy: Always
     command:
     - cat
