@@ -28,6 +28,16 @@ db:
     size: 5Gi
     storageClassName: 
 
+viewer:
+  image:
+    repository: us.icr.io/namespacecda/calculadora-viewr
+    tag: 
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+  replicaCount: 1
+
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
