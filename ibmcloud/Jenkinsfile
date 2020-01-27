@@ -29,7 +29,7 @@ pipeline{
 		 stage('Build Jars'){
 			 steps{
 				 container('maven'){
-					 sh "cd visualizer/; mvn -B clean package"
+					 sh "cd visualizer/; mvn -B clean package -DskipTests"
 				 }
 			 }
 		 }
