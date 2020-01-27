@@ -1,0 +1,33 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Debug (Launch) - Current File",
+      "request": "launch",
+      "mainClass": "${file}"
+    },
+    {
+      "type": "java",
+      "name": "Debug (Launch)-VisualizerApplication<visualizer>",
+      "request": "launch",
+      "mainClass": "com.gbm.sample.visualizer.VisualizerApplication",
+      "projectName": "visualizer"
+    },
+    {
+      "type": "java",
+      "name": "Debug (Launch)-MavenWrapperDownloader",
+      "request": "launch",
+      "mainClass": "MavenWrapperDownloader"
+    },
+    {
+      "type": "java",
+      "name": "Debug (Launch)-VisualizerApplication",
+      "request": "launch",
+      "mainClass": "com.gbm.sample.visualizer.VisualizerApplication"
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>GBM | Distribuidor de IBM, Lenovo, Microsoft, y servicios
+	de TI, GBM as a Service</title>
+
+<!--    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"> -->
+<!-- <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png"> -->
+<!-- <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png"> -->
+
+<link rel="shortcut icon" type="image/png" sizes="32x32"
+	href="https://www.gbm.net/favicons/favicon-32x32.png" />
+<!-- <link rel="shortcut icon"  type="image/png" sizes="16x16" href="/favicon-16x16.png" /> -->
+
+<style>
+#wrapper {
+	width: 50em;
+	background-color: #000080;
+	/* 	background-color: #ffffff; */
+	padding: 10px;
+	margin: 0 auto 0 auto;
+	border-radius: 5px;
+	color: #ffffff;
+}
+#wrapper table {
+  margin: 5px;
+  border-style: solid;
+  width: 100%;
+}
+#wrapper table th{
+  font-weight: bold;
+  text-align: center;
+  padding: 3 px;
+  border-bottom: solid;
+}
+#wrapper table td{
+  text-align: center;
+  padding: 3 px;
+}
+
+#logo {
+	width: 200px;
+	/*             background-color:  #000080; */
+	background-color: #ffffff;
+	padding: 10px;
+	margin: 0 auto 0 auto;
+	border-radius: 5px;
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.pagination{
+  display: inline-block;
+  list-style-type: none;
+}
+
+.pagination li{
+  display: inline;
+}
+
+.pagination a{
+  color: black;
+  float: left;
+  padding: 8px 16px;
+  text-decoration: none;
+}
+.pagination a.active{
+  background-color: #ddd;
+  color: white;
+}
+
+.pagination a:hover:not(.active) {background-color: #ddd;}
+</style>
+</head>
+<body>
+  <header>
+		<img id="logo"
+			src="https://gbm.net/empleos/themes/website/assets/images/common/gbm-logo.svg" />
+	</header>
+	<section id="wrapper">
+    <h4>Visualizador de datos almacenados para el piloto 3 de GBM calculadora V 1.0</h4>
+    <table>
+      <tr>
+        <th>Hora Transaccion</th>
+        <th>Operando 1</th>
+        <th>Operador</th>
+        <th>Operando 2</th>
+      </tr>
+      <tr th:each="operacion: ${operacionList}">
+        <td th:text="${operacion.horaTrans}"></td>
+        <td th:text="${operacion.operando1}"></td>
+        <td th:text="${operacion.operador}"></td>
+        <td th:text="${operacion.operando2}"></td>
+      </tr>
+    </table>
+    <nav aria-label="Pagination">
+      <ul class="pagination">
+          <li th:each="pageNumber : ${pageNumbers}" >
+              <a th:href="@{|?page=${pageNumber}|}" th:text=${pageNumber} th:classappend="${pageNumber==actualPage}?active">1</a>
+          </li>
+      </ul>
+    </nav>
+    <div th:if="${!(operacionList.empty)}"><a th:href="@{?clear=true}" onclick="confirm('Desea eliminar toda la información registrada?')">Limpiar Registros</a></div>
+  </section>
+</body>
+</html>

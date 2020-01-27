@@ -26,6 +26,13 @@ pipeline{
 				}
 			}
    	}
+		 stage('Build Jars'){
+			 steps{
+				 container('maven'){
+					 sh "cd visualizer/; mvn -B clean package"
+				 }
+			 }
+		 }
 		stage('Build ACE'){
 			environment {
 				PATH = "/busybox:/kaniko:$PATH"
@@ -50,6 +57,20 @@ pipeline{
 					sh  '''#!/busybox/sh
 							echo "Building $DESTINATION"
 							/kaniko/executor --dockerfile=`pwd`/database/Dockerfile --context=dir://`pwd`/database/ --destination="$DESTINATION"
+							'''
+				}	
+			}
+		}
+		stage('Build Visualizer'){
+			environment {
+				PATH = "/busybox:/kaniko:$PATH"
+				DESTINATION = "${registry}/${project}/${app}-viewer:${tag}"
+			}
+			steps{
+				container('kaniko'){
+					sh  '''#!/busybox/sh
+							echo "Building $DESTINATION"
+							/kaniko/executor --dockerfile=`pwd`/visualizer/Dockerfile --context=dir://`pwd`/visualizer/ --destination="$DESTINATION"
 							'''
 				}	
 			}
