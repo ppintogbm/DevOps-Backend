@@ -91,12 +91,16 @@ spec:
           ports:
             - containerPort: 22
               protocol: TCP
+              name: 22-tcp
             - containerPort: 50000
               protocol: TCP
+              name: 50000-tcp
             - containerPort: 55000
               protocol: TCP
+              name: 55000-tcp
             - containerPort: 60007
               protocol: TCP
+              name: 60007-tcp
           volumeMounts:
             - mountPath: /sys/fs/cgroup
               name: cgvol

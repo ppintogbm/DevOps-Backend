@@ -9,4 +9,6 @@ public interface OperacionService{
 
   Page<Operacion> findAllPageable(Pageable pageable);
 
+  void clear();
+
 }

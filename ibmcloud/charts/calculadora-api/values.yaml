@@ -11,6 +11,11 @@ api:
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
+    ports:
+      - name: http
+        port: 7800
+      - name: admin-http
+        port: 7600
   replicaCount: 1
 
 db:
@@ -23,6 +28,17 @@ db:
   password: 
   service: 
     type: ClusterIP
+    ports:
+      - name: 22-tcp
+        port: 22
+      - name: 50000-tcp
+        port: 50000
+      - name: 55000-tcp
+        port: 55000
+      - name: 60006-tcp
+        port: 60006
+      - name: 60007-tcp
+        port: 60007
   pvc:
     enabled: false
     size: 5Gi
@@ -30,11 +46,14 @@ db:
 
 viewer:
   image:
-    repository: us.icr.io/namespacecda/calculadora-viewr
+    repository: us.icr.io/namespacecda/calculadora-viewer
     tag: 
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
+    ports:
+      - name: http
+        port: 8080
   replicaCount: 1
 
 

@@ -19,4 +19,9 @@ public class OperacionServiceImpl implements OperacionService{
   public Page<Operacion> findAllPageable(Pageable pageable) {
     return operacionRepository.findAll(pageable);
   }
+
+  @Override
+  public void clear() {
+    operacionRepository.deleteAll();
+  }
 }

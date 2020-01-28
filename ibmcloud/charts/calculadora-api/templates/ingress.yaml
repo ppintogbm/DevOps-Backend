@@ -1,6 +1,7 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "calculadora-api.fullname" . -}}
-{{- $svcPort := .Values.service.port -}}
+{{- $viewerSvcPort := .Values.viewer.service.ports -}}
+{{- $apiSvcPort:= .Values.api.service.ports -}}
 {{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1beta1
 {{- else -}}
@@ -27,15 +28,31 @@ spec:
   {{- end }}
 {{- end }}
   rules:
-  {{- range .Values.ingress.hosts }}
-    - host: {{ .host | quote }}
+  {{- range $host :=.Values.ingress.hosts }}
+    {{- $hostBase := $host.host }}
+    {{- range $svc := $viewerSvcPort }}
+    {{- $svcHost := printf "viewer-%s-%s" $svc.name $hostBase }}
+    - host: {{ $svcHost | quote }}
       http:
         paths:
-        {{- range .paths }}
+        {{- range $host.paths }}
           - path: {{ . }}
             backend:
-              serviceName: {{ $fullName }}
-              servicePort: {{ $svcPort }}
+              serviceName: {{ $fullName }}-viewer
+              servicePort: {{ $svc.port }}
         {{- end }}
+    {{- end }}
+    {{- range $svc := $apiSvcPort }}
+    {{- $svcHost := printf "api-%s-%s" $svc.name $hostBase }}
+    - host: {{ $svcHost | quote }}
+      http:
+        paths:
+        {{- range $host.paths }}
+          - path: {{ . }}
+            backend:
+              serviceName: {{ $fullName }}-viewer
+              servicePort: {{ $svc.port }}
+        {{- end }}
+    {{- end }}
   {{- end }}
 {{- end }}

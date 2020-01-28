@@ -23,6 +23,11 @@ public class HomeController{
 
   @GetMapping(path = {"","/"})
   public String index(@RequestParam(defaultValue =  "1", name = "page") String page, @RequestParam(defaultValue = "5", name = "pageSize") String pageSize, @RequestParam(defaultValue = "false", name = "clear") String clear, Model model) {
+
+    if (clear == "true"){
+      operacionService.clear();
+    }
+
     PageRequest pageable = PageRequest.of(Integer.parseInt(page) - 1, Integer.parseInt(pageSize));
     Page<Operacion> operacionPage = operacionService.findAllPageable(pageable);
     

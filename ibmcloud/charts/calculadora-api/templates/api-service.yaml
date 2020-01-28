@@ -7,12 +7,12 @@ metadata:
 spec:
   type: {{ default "ClusterIP" .Values.api.service.type }}
   ports:
-    - port: 7800
+    {{- range .Values.api.service.ports }}
+    - name: {{ .name }}
+      targetPort: {{ .name }}
+      port: {{ .port }}
       protocol: TCP
-      name: http
-    - port: 7600
-      protocol: TCP
-      name: admin-http
+    {{- end }}
   selector:
     app.kubernetes.io/name: {{ include "calculadora-api.name" . }}-api
     app.kubernetes.io/instance: {{ .Release.Name }}

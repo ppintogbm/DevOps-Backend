@@ -66,12 +66,16 @@ spec:
           ports:
           - containerPort: 7600
             protocol: TCP
+            name: admin-http
           - containerPort: 7800
             protocol: TCP
+            name: http
           - containerPort: 7843
             protocol: TCP
+            name: https
           - containerPort: 9483
             protocol: TCP
+            name: 9483-tcp
           livenessProbe: 
             exec:
               command: 

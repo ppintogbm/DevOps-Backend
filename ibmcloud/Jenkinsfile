@@ -86,7 +86,7 @@ pipeline{
 				container('helm'){
 					sh 	'''#!/bin/sh
 							/helm init --client-only
-							/helm upgrade $APPNAME ibmcloud/charts/calculadora-api --namespace default --install --set db.dbname=TEST,db.password=passw0rd,api.image.repository=$APIIMAGE,api.image.tag=$TAG,db.image.repository=$DBIMAGE,db.image.tag=$TAG
+							/helm upgrade $APPNAME ibmcloud/charts/calculadora-api --namespace default --install --set db.dbname=TEST,db.password=passw0rd,api.image.repository=$APIIMAGE,api.image.tag=$TAG,db.image.repository=$DBIMAGE,db.image.tag=$TAG,ingress.enabled=true,ingress.hosts[0].paths[0]=/,ingress.hosts[0].host=apps.ibmcloud-kubernetes.us-east.containers.appdomain.cloud
 							'''
 				}
 			}
