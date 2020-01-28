@@ -42,7 +42,6 @@ pipeline{
 				container('kaniko'){
 					sh  '''#!/busybox/sh
 							echo "Building $DESTINATION"
-							echo '/kaniko/executor --dockerfile=Dockerfile --context="dir://`pwd`" --destination="$DESTINATION"'
 							/kaniko/executor --dockerfile=Dockerfile --context="dir://`pwd`" --destination="$DESTINATION" --verbosity debug
 							'''
 				}
@@ -57,7 +56,7 @@ pipeline{
 				container('kaniko'){
 					sh  '''#!/busybox/sh
 							echo "Building $DESTINATION"
-							/kaniko/executor --dockerfile=`pwd`/database/Dockerfile --context=dir://`pwd`/database/ --destination="$DESTINATION"
+							/kaniko/executor --dockerfile="`pwd`/database/Dockerfile" --context="dir://`pwd`/database/" --destination="$DESTINATION"
 							'''
 				}	
 			}
@@ -71,7 +70,7 @@ pipeline{
 				container('kaniko'){
 					sh  '''#!/busybox/sh
 							echo "Building $DESTINATION"
-							/kaniko/executor --dockerfile=`pwd`/visualizer/Dockerfile --context=dir://`pwd`/visualizer/ --destination="$DESTINATION"
+							/kaniko/executor --dockerfile="`pwd`/visualizer/Dockerfile" --context="dir://`pwd`/visualizer/" --destination="$DESTINATION"
 							'''
 				}	
 			}
