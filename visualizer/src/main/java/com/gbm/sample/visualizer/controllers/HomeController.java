@@ -24,7 +24,7 @@ public class HomeController{
   @GetMapping(path = {"","/"})
   public String index(@RequestParam(defaultValue =  "1", name = "page") String page, @RequestParam(defaultValue = "5", name = "pageSize") String pageSize, @RequestParam(defaultValue = "false", name = "clear") String clear, Model model) {
 
-    if (clear == "true"){
+    if (clear.equals("true")){
       operacionService.clear();
     }
 

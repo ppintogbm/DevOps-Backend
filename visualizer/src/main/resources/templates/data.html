@@ -101,7 +101,7 @@
           </li>
       </ul>
     </nav>
-    <div th:if="${!(operacionList.empty)}"><a th:href="@{?clear=true}" onclick="confirm('Desea eliminar toda la información registrada?')">Limpiar Registros</a></div>
+    <div th:if="${!(operacionList.empty)}" style="background-color: azure;"><a th:href="@{?clear=true}" onclick="confirm('Desea eliminar toda la información registrada?')">Limpiar Registros</a></div>
   </section>
 </body>
 </html>

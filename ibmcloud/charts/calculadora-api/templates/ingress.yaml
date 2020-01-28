@@ -50,7 +50,7 @@ spec:
         {{- range $host.paths }}
           - path: {{ . }}
             backend:
-              serviceName: {{ $fullName }}-viewer
+              serviceName: {{ $fullName }}-api
               servicePort: {{ $svc.port }}
         {{- end }}
     {{- end }}
