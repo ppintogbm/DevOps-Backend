@@ -42,7 +42,8 @@ pipeline{
 				container('kaniko'){
 					sh  '''#!/busybox/sh
 							echo "Building $DESTINATION"
-							/kaniko/executor --dockerfile=Dockerfile --context=dir://`pwd` --destination="$DESTINATION"
+							echo '/kaniko/executor --dockerfile=Dockerfile --context="dir://`pwd`" --destination="$DESTINATION"'
+							/kaniko/executor --dockerfile=Dockerfile --context="dir://`pwd`" --destination="$DESTINATION" --debug
 							'''
 				}
 			}
