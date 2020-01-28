@@ -80,13 +80,14 @@ pipeline{
 				APPNAME = "${app}"
 				APIIMAGE = "${registry}/${project}/${app}-api"
 				DBIMAGE = "${registry}/${project}/${app}-db"
+				VIEWERIMAGE = "${registry}/${project}/${app}-viewer"
 				TAG = "${tag}"
 			}
 			steps{
 				container('helm'){
 					sh 	'''#!/bin/sh
 							/helm init --client-only
-							/helm upgrade $APPNAME ibmcloud/charts/calculadora-api --namespace default --install --set db.dbname=TEST,db.password=passw0rd,api.image.repository=$APIIMAGE,api.image.tag=$TAG,db.image.repository=$DBIMAGE,db.image.tag=$TAG,ingress.enabled=true,ingress.hosts[0].paths[0]=/,ingress.hosts[0].host=apps.ibmcloud-kubernetes.us-east.containers.appdomain.cloud
+							/helm upgrade $APPNAME ibmcloud/charts/calculadora-api --namespace default --install --set db.dbname=TEST,db.password=passw0rd,api.image.repository=$APIIMAGE,api.image.tag=$TAG,db.image.repository=$DBIMAGE,db.image.tag=$TAG,viewer.image.repository=$VIEWERIMAGE,viewer.image.tag=$TAG,ingress.enabled=true,ingress.hosts[0].paths[0]=/,ingress.hosts[0].host=apps.ibmcloud-kubernetes.us-east.containers.appdomain.cloud
 							'''
 				}
 			}
